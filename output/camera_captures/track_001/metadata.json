@@ -1,0 +1,21 @@
+{
+  "track_id": 1,
+  "num_frames": 12,
+  "avg_quality": 0.8634419441223145,
+  "avg_det_score": 0.7471188306808472,
+  "saved_at": "2025-11-27T17:22:51.901372",
+  "files": [
+    "frame_000.jpg",
+    "frame_001.jpg",
+    "frame_002.jpg",
+    "frame_003.jpg",
+    "frame_004.jpg",
+    "frame_005.jpg",
+    "frame_006.jpg",
+    "frame_007.jpg",
+    "frame_008.jpg",
+    "frame_009.jpg",
+    "frame_010.jpg",
+    "frame_011.jpg"
+  ]
+}

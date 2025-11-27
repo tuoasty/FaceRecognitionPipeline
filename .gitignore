@@ -1,0 +1,32 @@
+# Ignore all image files
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
+*.tif
+*.tiff
+*.webp
+*.jfif
+*.pjpeg
+*.pjp
+
+# Ignore model checkpoints
+*.ckpt
+
+# Ignore serialized pickle files
+*.pkl
+
+# (Optional) Ignore typical training artifacts
+*.pt
+*.pth
+*.npz
+*.npy
+
+# (Optional) Ignore dataset directories if any
+dataset/
+datasets/
+
+# (Optional) Ignore logs
+logs/
+*.log
