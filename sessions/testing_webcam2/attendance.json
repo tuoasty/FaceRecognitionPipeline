@@ -1,0 +1,52 @@
+{
+  "session_id": "testing_webcam2",
+  "last_updated": "2025-12-01T12:48:23.158152",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-01T12:47:51.538657",
+      "confidence": 0.6747826933860779,
+      "track_id": "track_0000",
+      "duration_seconds": 3.005564,
+      "detection_quality": {
+        "det_score": 0.8617662787437439,
+        "blur_score": 165.48540484433568
+      },
+      "saved_face_path": "sessions\\testing_webcam2\\recognized_faces\\STU0010_KH\\track_0000_20251201_124754_710241_conf0.502.jpg"
+    }
+  ],
+  "unrecognized": [
+    {
+      "track_id": "track_0003",
+      "first_seen": "2025-12-01T12:47:58.098124",
+      "duration_seconds": 5.544009,
+      "best_match": {
+        "name": "YD",
+        "student_id": "STU0023",
+        "confidence": 0.198571115732193
+      },
+      "reason": "below_threshold",
+      "threshold": 0.5,
+      "attempts": 3,
+      "top_matches": [
+        {
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.198571115732193
+        },
+        {
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.1908940225839615
+        },
+        {
+          "student_id": "STU0015",
+          "name": "OV",
+          "score": 0.16132013499736786
+        }
+      ],
+      "saved_face_path": "sessions\\testing_webcam2\\unrecognized_faces\\track_0003_20251201_124803_736658_conf0.199.jpg"
+    }
+  ]
+}

@@ -1,285 +1,285 @@
 {
   "track_id": "track_001",
   "recognized": true,
-  "student_id": "STU0006",
+  "student_id": "STU0010",
   "name": "KH",
-  "confidence": 0.6872727970282236,
+  "confidence": 0.7480276425679525,
   "method": "majority_vote",
   "num_frames": 12,
   "frame_matches": [
     {
       "frame": "frame_000.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.7202649712562561,
+      "score": 0.7783161401748657,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.7202649712562561
+          "score": 0.7783161401748657
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.330691397190094
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.2729054391384125
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.32195842266082764
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.2544577419757843
         }
       ]
     },
     {
       "frame": "frame_001.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.678716242313385,
+      "score": 0.7480612993240356,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.678716242313385
-        },
-        {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.31255197525024414
-        },
-        {
           "student_id": "STU0010",
+          "name": "KH",
+          "score": 0.7480612993240356
+        },
+        {
+          "student_id": "STU0006",
+          "name": "FO",
+          "score": 0.3193836808204651
+        },
+        {
+          "student_id": "STU0017",
           "name": "RU",
-          "score": 0.27970755100250244
+          "score": 0.29669925570487976
         }
       ]
     },
     {
       "frame": "frame_002.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.7241231203079224,
+      "score": 0.7718769907951355,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.7241231203079224
+          "score": 0.7718769907951355
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.3553978204727173
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.27806979417800903
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.315633088350296
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.2711767256259918
         }
       ]
     },
     {
       "frame": "frame_003.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.7158394455909729,
+      "score": 0.7714026570320129,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.7158394455909729
+          "score": 0.7714026570320129
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.35396459698677063
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.2925298511981964
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.31544843316078186
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.26764556765556335
         }
       ]
     },
     {
       "frame": "frame_004.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6893965005874634,
+      "score": 0.7670948505401611,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.6893965005874634
+          "score": 0.7670948505401611
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.34497717022895813
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.3332566022872925
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.3175882399082184
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.3036816418170929
         }
       ]
     },
     {
       "frame": "frame_005.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6907485723495483,
+      "score": 0.7496811747550964,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.6907485723495483
+          "score": 0.7496811747550964
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.3278675973415375
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.3324660062789917
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.30732569098472595
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.30065494775772095
         }
       ]
     },
     {
       "frame": "frame_006.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6918947100639343,
+      "score": 0.7491946816444397,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
+          "student_id": "STU0010",
           "name": "KH",
-          "score": 0.6918947100639343
+          "score": 0.7491946816444397
         },
         {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.3316405415534973
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.3309829533100128
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.3088799715042114
+          "student_id": "STU0021",
+          "name": "WS",
+          "score": 0.31197357177734375
         }
       ]
     },
     {
       "frame": "frame_007.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6595583558082581,
+      "score": 0.7083285450935364,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.6595583558082581
-        },
-        {
           "student_id": "STU0010",
-          "name": "RU",
-          "score": 0.3764041066169739
+          "name": "KH",
+          "score": 0.7083285450935364
         },
         {
-          "student_id": "STU0011",
-          "name": "TI",
-          "score": 0.3396264314651489
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.3533668518066406
+        },
+        {
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.32302168011665344
         }
       ]
     },
     {
       "frame": "frame_008.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6015255451202393,
+      "score": 0.6538752913475037,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.6015255451202393
-        },
-        {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.2758644223213196
-        },
-        {
           "student_id": "STU0010",
+          "name": "KH",
+          "score": 0.6538752913475037
+        },
+        {
+          "student_id": "STU0006",
+          "name": "FO",
+          "score": 0.3095042109489441
+        },
+        {
+          "student_id": "STU0017",
           "name": "RU",
-          "score": 0.2566528916358948
+          "score": 0.26672568917274475
         }
       ]
     },
     {
       "frame": "frame_009.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6995322704315186,
+      "score": 0.7667915225028992,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.6995322704315186
-        },
-        {
           "student_id": "STU0010",
-          "name": "RU",
-          "score": 0.3291645646095276
+          "name": "KH",
+          "score": 0.7667915225028992
         },
         {
-          "student_id": "STU0016",
+          "student_id": "STU0023",
           "name": "YD",
-          "score": 0.31228628754615784
+          "score": 0.3543177545070648
+        },
+        {
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.3093402087688446
         }
       ]
     },
     {
       "frame": "frame_010.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6846257448196411,
+      "score": 0.7518903613090515,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.6846257448196411
-        },
-        {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.3237999677658081
-        },
-        {
           "student_id": "STU0010",
+          "name": "KH",
+          "score": 0.7518903613090515
+        },
+        {
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.32479968667030334
+        },
+        {
+          "student_id": "STU0017",
           "name": "RU",
-          "score": 0.28984278440475464
+          "score": 0.30292192101478577
         }
       ]
     },
     {
       "frame": "frame_011.jpg",
-      "student_id": "STU0006",
+      "student_id": "STU0010",
       "name": "KH",
-      "score": 0.6910480856895447,
+      "score": 0.7598181962966919,
       "top_k_matches": [
         {
-          "student_id": "STU0006",
-          "name": "KH",
-          "score": 0.6910480856895447
-        },
-        {
-          "student_id": "STU0009",
-          "name": "PL",
-          "score": 0.31246158480644226
-        },
-        {
           "student_id": "STU0010",
+          "name": "KH",
+          "score": 0.7598181962966919
+        },
+        {
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.33467862010002136
+        },
+        {
+          "student_id": "STU0017",
           "name": "RU",
-          "score": 0.3074851334095001
+          "score": 0.30714792013168335
         }
       ]
     }
@@ -305,5 +305,5 @@
       "frame_011.jpg"
     ]
   },
-  "timestamp": "2025-11-27T18:23:20.525438"
+  "timestamp": "2025-11-27T18:31:02.576835"
 }

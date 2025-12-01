@@ -1,0 +1,20 @@
+{
+  "session_id": "testing_webcam5",
+  "start_time": "2025-12-01T13:00:49.063271",
+  "end_time": "2025-12-01T13:03:00.277643",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.5,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 1649,
+    "total_faces_detected": 2860,
+    "total_recognition_attempts": 56,
+    "unique_students_recognized": 4,
+    "unrecognized_tracks": 4,
+    "average_fps": 12.567220913879769
+  },
+  "duration_seconds": 131.214372
+}
