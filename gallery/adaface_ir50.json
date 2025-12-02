@@ -1,0 +1,351 @@
+{
+  "num_students": 23,
+  "last_saved": "2025-12-02T08:47:28.049136",
+  "students": {
+    "STU0001": {
+      "student_id": "STU0001",
+      "name": "AC",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:25.968146",
+      "last_updated": "2025-12-02T08:47:25.968146",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9232183694839478,
+        "source_directory": "samples/enrollment\\AC"
+      }
+    },
+    "STU0002": {
+      "student_id": "STU0002",
+      "name": "AS",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.085528",
+      "last_updated": "2025-12-02T08:47:26.085528",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9344657063484192,
+        "source_directory": "samples/enrollment\\AS"
+      }
+    },
+    "STU0003": {
+      "student_id": "STU0003",
+      "name": "BD",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.198764",
+      "last_updated": "2025-12-02T08:47:26.198764",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.928686261177063,
+        "source_directory": "samples/enrollment\\BD"
+      }
+    },
+    "STU0004": {
+      "student_id": "STU0004",
+      "name": "BT",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.303212",
+      "last_updated": "2025-12-02T08:47:26.303212",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9215306043624878,
+        "source_directory": "samples/enrollment\\BT"
+      }
+    },
+    "STU0005": {
+      "student_id": "STU0005",
+      "name": "CT",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.406846",
+      "last_updated": "2025-12-02T08:47:26.406846",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9318009614944458,
+        "source_directory": "samples/enrollment\\CT"
+      }
+    },
+    "STU0006": {
+      "student_id": "STU0006",
+      "name": "FO",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.497903",
+      "last_updated": "2025-12-02T08:47:26.497903",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9494430422782898,
+        "source_directory": "samples/enrollment\\FO"
+      }
+    },
+    "STU0007": {
+      "student_id": "STU0007",
+      "name": "GN",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.590951",
+      "last_updated": "2025-12-02T08:47:26.590951",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9520558714866638,
+        "source_directory": "samples/enrollment\\GN"
+      }
+    },
+    "STU0008": {
+      "student_id": "STU0008",
+      "name": "GY",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.682034",
+      "last_updated": "2025-12-02T08:47:26.682034",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9559947848320007,
+        "source_directory": "samples/enrollment\\GY"
+      }
+    },
+    "STU0009": {
+      "student_id": "STU0009",
+      "name": "HO",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.776085",
+      "last_updated": "2025-12-02T08:47:26.776085",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9047343134880066,
+        "source_directory": "samples/enrollment\\HO"
+      }
+    },
+    "STU0010": {
+      "student_id": "STU0010",
+      "name": "KH",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.864207",
+      "last_updated": "2025-12-02T08:47:26.864207",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9443697333335876,
+        "source_directory": "samples/enrollment\\KH"
+      }
+    },
+    "STU0011": {
+      "student_id": "STU0011",
+      "name": "MM",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:26.950832",
+      "last_updated": "2025-12-02T08:47:26.950832",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9505298733711243,
+        "source_directory": "samples/enrollment\\MM"
+      }
+    },
+    "STU0012": {
+      "student_id": "STU0012",
+      "name": "MR",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.042032",
+      "last_updated": "2025-12-02T08:47:27.042032",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9333411455154419,
+        "source_directory": "samples/enrollment\\MR"
+      }
+    },
+    "STU0013": {
+      "student_id": "STU0013",
+      "name": "MV",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.131686",
+      "last_updated": "2025-12-02T08:47:27.131686",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9225529432296753,
+        "source_directory": "samples/enrollment\\MV"
+      }
+    },
+    "STU0014": {
+      "student_id": "STU0014",
+      "name": "NS",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.220292",
+      "last_updated": "2025-12-02T08:47:27.220292",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9535574316978455,
+        "source_directory": "samples/enrollment\\NS"
+      }
+    },
+    "STU0015": {
+      "student_id": "STU0015",
+      "name": "OV",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.313347",
+      "last_updated": "2025-12-02T08:47:27.313347",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9549065828323364,
+        "source_directory": "samples/enrollment\\OV"
+      }
+    },
+    "STU0016": {
+      "student_id": "STU0016",
+      "name": "PL",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.403409",
+      "last_updated": "2025-12-02T08:47:27.403409",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9206485748291016,
+        "source_directory": "samples/enrollment\\PL"
+      }
+    },
+    "STU0017": {
+      "student_id": "STU0017",
+      "name": "RU",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.497602",
+      "last_updated": "2025-12-02T08:47:27.497602",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9361969828605652,
+        "source_directory": "samples/enrollment\\RU"
+      }
+    },
+    "STU0018": {
+      "student_id": "STU0018",
+      "name": "TI",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.589688",
+      "last_updated": "2025-12-02T08:47:27.589688",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9300721287727356,
+        "source_directory": "samples/enrollment\\TI"
+      }
+    },
+    "STU0019": {
+      "student_id": "STU0019",
+      "name": "VD",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.680295",
+      "last_updated": "2025-12-02T08:47:27.680295",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.948388934135437,
+        "source_directory": "samples/enrollment\\VD"
+      }
+    },
+    "STU0020": {
+      "student_id": "STU0020",
+      "name": "VM",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.769870",
+      "last_updated": "2025-12-02T08:47:27.769870",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9575936198234558,
+        "source_directory": "samples/enrollment\\VM"
+      }
+    },
+    "STU0021": {
+      "student_id": "STU0021",
+      "name": "WS",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.856938",
+      "last_updated": "2025-12-02T08:47:27.856938",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9414057731628418,
+        "source_directory": "samples/enrollment\\WS"
+      }
+    },
+    "STU0022": {
+      "student_id": "STU0022",
+      "name": "WW",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:27.952528",
+      "last_updated": "2025-12-02T08:47:27.952528",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9595734477043152,
+        "source_directory": "samples/enrollment\\WW"
+      }
+    },
+    "STU0023": {
+      "student_id": "STU0023",
+      "name": "YD",
+      "num_samples": 8,
+      "enrollment_date": "2025-12-02T08:47:28.047139",
+      "last_updated": "2025-12-02T08:47:28.047139",
+      "metadata": {
+        "num_images": 1,
+        "num_valid_faces": 1,
+        "num_augmented_faces": 8,
+        "augmentation_per_face": 8,
+        "avg_similarity": 0.9545927047729492,
+        "source_directory": "samples/enrollment\\YD"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "total_tracks": 1,
+  "recognized": 1,
+  "unrecognized": 0,
+  "recognition_rate": 100.0,
+  "avg_confidence": 0.6676906992991766,
+  "student_appearances": {
+    "KH": 1
+  },
+  "below_threshold_candidates": [],
+  "unique_students": 1,
+  "timestamp": "2025-12-02T11:33:52.619874",
+  "settings": {
+    "similarity_threshold": 0.5,
+    "aggregation_method": "majority_vote"
+  }
+}

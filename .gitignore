@@ -30,3 +30,4 @@ datasets/
 # (Optional) Ignore logs
 logs/
 *.log
+*.onnx

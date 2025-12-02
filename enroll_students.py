@@ -48,7 +48,9 @@ class StudentEnrollment:
                 min_faces_per_student=3,
                 max_faces_per_student=10,
                 limit_images=0,
-                image_indices=None):
+                image_indices=None,
+                model_type='adaface',
+                architecture='ir_101'):
     self.min_faces = min_faces_per_student
     self.max_faces = max_faces_per_student
     self.limit_images = limit_images
@@ -74,7 +76,8 @@ class StudentEnrollment:
 
     print("\n2. Loading AdaFace model...")
     self.embedder = FaceEmbedder(
-      architecture='ir_101'
+      architecture=architecture,
+      model_type=model_type
     )
 
     print("\n3. Loading gallery database...")
@@ -412,6 +415,21 @@ def main():
     default=None,
     help='Explicit list of image numbers to use (1-based). Example: 2 3 4'
   )
+
+  parser.add_argument(
+    '--model_type',
+    type=str,
+    default='adaface',
+    choices=['adaface', 'arcface'],
+    help='Type of face recognition model to use'
+  )
+  parser.add_argument(
+    '--architecture',
+    type=str,
+    default='ir_101',
+    choices=['ir_50', 'ir_101'],
+    help='Model architecture (ir_50 or ir_101)'
+  )
     
   args = parser.parse_args()
   
@@ -420,7 +438,9 @@ def main():
     min_faces_per_student=args.min_faces,
     max_faces_per_student=args.max_faces,
     limit_images=args.limit_images,
-    image_indices=args.image_indices
+    image_indices=args.image_indices,
+    model_type=args.model_type,
+    architecture=args.architecture
   )
   
   summary = enrollment.enroll_from_directory(args.enrollment_dir)
@@ -428,7 +448,9 @@ def main():
   if summary.get('successful', 0) > 0:
     print("\nCreating backup...")
     backup_dir = os.path.join(os.path.dirname(args.gallery_path), 'backups')
-    enrollment.gallery.export_for_backup(backup_dir)
+    
+    backup_name = f"{args.model_type}_{args.architecture}"
+    enrollment.gallery.export_for_backup(backup_dir, backup_name=backup_name)
     print(f"Backup saved to {backup_dir}")
 
 

@@ -15,15 +15,19 @@ class FaceMatcher:
   def __init__(self,
                 gallery_path='gallery/students.pkl',
                 similarity_threshold=0.5,
-                aggregation_method='majority_vote'):
+                aggregation_method='majority_vote',
+                model_type='adaface',
+                architecture='ir_101'):
     self.similarity_threshold = similarity_threshold
     self.aggregation_method = aggregation_method
+    self.model_type = model_type
+    self.architecture = architecture
     
     print("Initializing Face Matcher...")
     print("="*60)
 
     print("\n1. Loading AdaFace model...")
-    self.embedder = FaceEmbedder(architecture='ir_101')
+    self.embedder = FaceEmbedder(architecture=architecture, model_type=model_type)
     print("\n2. Loading student gallery...")
     self.gallery = GalleryManager(gallery_path=gallery_path)
     
@@ -291,7 +295,9 @@ class FaceMatcher:
         cv2.putText(image_rgb, line, (x1, y_offset + h), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
-    output_dir = os.path.join(os.path.dirname(image_path), 'match_results')
+    base_dir = os.path.dirname(image_path)
+    output_dir_name = f'{self.model_type}_{self.architecture}_match_results'
+    output_dir = os.path.join(base_dir, output_dir_name)
     os.makedirs(output_dir, exist_ok=True)
     
     filename = os.path.basename(image_path)
@@ -420,7 +426,11 @@ class FaceMatcher:
     summary = self._generate_summary(results, recognized_count, unrecognized_count)
 
     if save_results:
-      summary_path = os.path.join(capture_dir, 'recognition_summary.json')
+      results_dir_name = f'{self.model_type}_{self.architecture}_results'
+      results_dir = os.path.join(capture_dir, results_dir_name)
+      os.makedirs(results_dir, exist_ok=True)
+      
+      summary_path = os.path.join(results_dir, 'recognition_summary.json')
       with open(summary_path, 'w') as f:
         json.dump(summary, f, indent=2)
       print(f"\nSummary saved to: {summary_path}")
@@ -525,12 +535,26 @@ def main():
     type=str,
     default=None,
     help='Path to single image to match (instead of processing capture directory)'
-)
+  )
   parser.add_argument(
     '--top_k',
     type=int,
     default=5,
     help='Number of top matches to show per face'
+  )
+  parser.add_argument(
+    '--model_type',
+    type=str,
+    default='adaface',
+    choices=['adaface', 'arcface'],
+    help='Type of face recognition model to use'
+  )
+  parser.add_argument(
+    '--architecture',
+    type=str,
+    default='ir_101',
+    choices=['ir_50', 'ir_101'],
+    help='Model architecture (ir_50 or ir_101)'
   )
     
   args = parser.parse_args()
@@ -538,7 +562,9 @@ def main():
   matcher = FaceMatcher(
     gallery_path=args.gallery_path,
     similarity_threshold=args.threshold,
-    aggregation_method=args.aggregation
+    aggregation_method=args.aggregation,
+    model_type=args.model_type,
+    architecture=args.architecture
   )
 
   summary = matcher.process_capture_directory(

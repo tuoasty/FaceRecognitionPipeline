@@ -1,19 +1,19 @@
 {
   "num_students": 23,
-  "last_saved": "2025-11-27T18:30:42.799916",
+  "last_saved": "2025-12-02T08:48:35.066526",
   "students": {
     "STU0001": {
       "student_id": "STU0001",
       "name": "AC",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.576489",
-      "last_updated": "2025-11-27T18:30:39.576489",
+      "enrollment_date": "2025-12-02T08:48:32.738362",
+      "last_updated": "2025-12-02T08:48:32.738362",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9455612897872925,
+        "avg_similarity": 0.9328252077102661,
         "source_directory": "samples/enrollment\\AC"
       }
     },
@@ -21,14 +21,14 @@
       "student_id": "STU0002",
       "name": "AS",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.711582",
-      "last_updated": "2025-11-27T18:30:39.711582",
+      "enrollment_date": "2025-12-02T08:48:32.853454",
+      "last_updated": "2025-12-02T08:48:32.853454",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9504243731498718,
+        "avg_similarity": 0.9456310272216797,
         "source_directory": "samples/enrollment\\AS"
       }
     },
@@ -36,14 +36,14 @@
       "student_id": "STU0003",
       "name": "BD",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.860762",
-      "last_updated": "2025-11-27T18:30:39.860762",
+      "enrollment_date": "2025-12-02T08:48:32.957173",
+      "last_updated": "2025-12-02T08:48:32.957173",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9563499689102173,
+        "avg_similarity": 0.9423615336418152,
         "source_directory": "samples/enrollment\\BD"
       }
     },
@@ -51,14 +51,14 @@
       "student_id": "STU0004",
       "name": "BT",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.012513",
-      "last_updated": "2025-11-27T18:30:40.012513",
+      "enrollment_date": "2025-12-02T08:48:33.061330",
+      "last_updated": "2025-12-02T08:48:33.061330",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9347788691520691,
+        "avg_similarity": 0.9196714758872986,
         "source_directory": "samples/enrollment\\BT"
       }
     },
@@ -66,14 +66,14 @@
       "student_id": "STU0005",
       "name": "CT",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.163687",
-      "last_updated": "2025-11-27T18:30:40.163687",
+      "enrollment_date": "2025-12-02T08:48:33.166728",
+      "last_updated": "2025-12-02T08:48:33.166728",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9545873999595642,
+        "avg_similarity": 0.9456899762153625,
         "source_directory": "samples/enrollment\\CT"
       }
     },
@@ -81,14 +81,14 @@
       "student_id": "STU0006",
       "name": "FO",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.310544",
-      "last_updated": "2025-11-27T18:30:40.310544",
+      "enrollment_date": "2025-12-02T08:48:33.270753",
+      "last_updated": "2025-12-02T08:48:33.270753",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9755277037620544,
+        "avg_similarity": 0.965881884098053,
         "source_directory": "samples/enrollment\\FO"
       }
     },
@@ -96,14 +96,14 @@
       "student_id": "STU0007",
       "name": "GN",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.455783",
-      "last_updated": "2025-11-27T18:30:40.455783",
+      "enrollment_date": "2025-12-02T08:48:33.373656",
+      "last_updated": "2025-12-02T08:48:33.373656",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9641714692115784,
+        "avg_similarity": 0.9482149481773376,
         "source_directory": "samples/enrollment\\GN"
       }
     },
@@ -111,14 +111,14 @@
       "student_id": "STU0008",
       "name": "GY",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.604472",
-      "last_updated": "2025-11-27T18:30:40.604472",
+      "enrollment_date": "2025-12-02T08:48:33.477396",
+      "last_updated": "2025-12-02T08:48:33.477396",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9685425162315369,
+        "avg_similarity": 0.9654001593589783,
         "source_directory": "samples/enrollment\\GY"
       }
     },
@@ -126,14 +126,14 @@
       "student_id": "STU0009",
       "name": "HO",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.750131",
-      "last_updated": "2025-11-27T18:30:40.750131",
+      "enrollment_date": "2025-12-02T08:48:33.594144",
+      "last_updated": "2025-12-02T08:48:33.594144",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9515288472175598,
+        "avg_similarity": 0.923730194568634,
         "source_directory": "samples/enrollment\\HO"
       }
     },
@@ -141,14 +141,14 @@
       "student_id": "STU0010",
       "name": "KH",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.893261",
-      "last_updated": "2025-11-27T18:30:40.893261",
+      "enrollment_date": "2025-12-02T08:48:33.699119",
+      "last_updated": "2025-12-02T08:48:33.699119",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9643288254737854,
+        "avg_similarity": 0.9485093951225281,
         "source_directory": "samples/enrollment\\KH"
       }
     },
@@ -156,14 +156,14 @@
       "student_id": "STU0011",
       "name": "MM",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.038359",
-      "last_updated": "2025-11-27T18:30:41.038359",
+      "enrollment_date": "2025-12-02T08:48:33.803032",
+      "last_updated": "2025-12-02T08:48:33.803032",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.967423141002655,
+        "avg_similarity": 0.9614606499671936,
         "source_directory": "samples/enrollment\\MM"
       }
     },
@@ -171,14 +171,14 @@
       "student_id": "STU0012",
       "name": "MR",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.180678",
-      "last_updated": "2025-11-27T18:30:41.180678",
+      "enrollment_date": "2025-12-02T08:48:33.906904",
+      "last_updated": "2025-12-02T08:48:33.906904",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9663280844688416,
+        "avg_similarity": 0.9527419805526733,
         "source_directory": "samples/enrollment\\MR"
       }
     },
@@ -186,14 +186,14 @@
       "student_id": "STU0013",
       "name": "MV",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.327408",
-      "last_updated": "2025-11-27T18:30:41.327408",
+      "enrollment_date": "2025-12-02T08:48:34.013217",
+      "last_updated": "2025-12-02T08:48:34.013217",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9559652209281921,
+        "avg_similarity": 0.9504626989364624,
         "source_directory": "samples/enrollment\\MV"
       }
     },
@@ -201,14 +201,14 @@
       "student_id": "STU0014",
       "name": "NS",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.472058",
-      "last_updated": "2025-11-27T18:30:41.472058",
+      "enrollment_date": "2025-12-02T08:48:34.119197",
+      "last_updated": "2025-12-02T08:48:34.119197",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9709721803665161,
+        "avg_similarity": 0.9525954127311707,
         "source_directory": "samples/enrollment\\NS"
       }
     },
@@ -216,14 +216,14 @@
       "student_id": "STU0015",
       "name": "OV",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.622853",
-      "last_updated": "2025-11-27T18:30:41.622853",
+      "enrollment_date": "2025-12-02T08:48:34.224185",
+      "last_updated": "2025-12-02T08:48:34.224185",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9620332717895508,
+        "avg_similarity": 0.960342526435852,
         "source_directory": "samples/enrollment\\OV"
       }
     },
@@ -231,14 +231,14 @@
       "student_id": "STU0016",
       "name": "PL",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.775953",
-      "last_updated": "2025-11-27T18:30:41.775953",
+      "enrollment_date": "2025-12-02T08:48:34.329559",
+      "last_updated": "2025-12-02T08:48:34.329559",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9424942135810852,
+        "avg_similarity": 0.9431319236755371,
         "source_directory": "samples/enrollment\\PL"
       }
     },
@@ -246,14 +246,14 @@
       "student_id": "STU0017",
       "name": "RU",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.922604",
-      "last_updated": "2025-11-27T18:30:41.922604",
+      "enrollment_date": "2025-12-02T08:48:34.434973",
+      "last_updated": "2025-12-02T08:48:34.434973",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9338380098342896,
+        "avg_similarity": 0.9261255264282227,
         "source_directory": "samples/enrollment\\RU"
       }
     },
@@ -261,14 +261,14 @@
       "student_id": "STU0018",
       "name": "TI",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.068790",
-      "last_updated": "2025-11-27T18:30:42.068790",
+      "enrollment_date": "2025-12-02T08:48:34.539232",
+      "last_updated": "2025-12-02T08:48:34.539232",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9529391527175903,
+        "avg_similarity": 0.9442764520645142,
         "source_directory": "samples/enrollment\\TI"
       }
     },
@@ -276,14 +276,14 @@
       "student_id": "STU0019",
       "name": "VD",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.214102",
-      "last_updated": "2025-11-27T18:30:42.214102",
+      "enrollment_date": "2025-12-02T08:48:34.644470",
+      "last_updated": "2025-12-02T08:48:34.644470",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9678260684013367,
+        "avg_similarity": 0.9643141031265259,
         "source_directory": "samples/enrollment\\VD"
       }
     },
@@ -291,14 +291,14 @@
       "student_id": "STU0020",
       "name": "VM",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.359620",
-      "last_updated": "2025-11-27T18:30:42.359620",
+      "enrollment_date": "2025-12-02T08:48:34.748558",
+      "last_updated": "2025-12-02T08:48:34.748558",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9697645902633667,
+        "avg_similarity": 0.9597534537315369,
         "source_directory": "samples/enrollment\\VM"
       }
     },
@@ -306,14 +306,14 @@
       "student_id": "STU0021",
       "name": "WS",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.504907",
-      "last_updated": "2025-11-27T18:30:42.504907",
+      "enrollment_date": "2025-12-02T08:48:34.853166",
+      "last_updated": "2025-12-02T08:48:34.853166",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9619597792625427,
+        "avg_similarity": 0.9479802250862122,
         "source_directory": "samples/enrollment\\WS"
       }
     },
@@ -321,14 +321,14 @@
       "student_id": "STU0022",
       "name": "WW",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.654519",
-      "last_updated": "2025-11-27T18:30:42.654519",
+      "enrollment_date": "2025-12-02T08:48:34.961503",
+      "last_updated": "2025-12-02T08:48:34.961503",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.9744764566421509,
+        "avg_similarity": 0.9707607626914978,
         "source_directory": "samples/enrollment\\WW"
       }
     },
@@ -336,14 +336,14 @@
       "student_id": "STU0023",
       "name": "YD",
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.797913",
-      "last_updated": "2025-11-27T18:30:42.797913",
+      "enrollment_date": "2025-12-02T08:48:35.064919",
+      "last_updated": "2025-12-02T08:48:35.064919",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
         "num_augmented_faces": 8,
         "augmentation_per_face": 8,
-        "avg_similarity": 0.965272068977356,
+        "avg_similarity": 0.9585703015327454,
         "source_directory": "samples/enrollment\\YD"
       }
     }

@@ -1,5 +1,6 @@
 {
-  "backup_date": "2025-11-27T18:30:42.821437",
+  "backup_date": "2025-12-02T08:48:13.690179",
+  "backup_name": "adaface_ir_101",
   "num_students": 23,
   "students": {
     "STU0001": {
@@ -4634,8 +4635,8 @@
         0.05112598463892937
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.576489",
-      "last_updated": "2025-11-27T18:30:39.576489",
+      "enrollment_date": "2025-12-02T08:48:11.146801",
+      "last_updated": "2025-12-02T08:48:11.146801",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -9277,8 +9278,8 @@
         0.009367203339934349
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.711582",
-      "last_updated": "2025-11-27T18:30:39.711582",
+      "enrollment_date": "2025-12-02T08:48:11.260035",
+      "last_updated": "2025-12-02T08:48:11.260035",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -13920,8 +13921,8 @@
         -0.02456067129969597
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:39.860762",
-      "last_updated": "2025-11-27T18:30:39.860762",
+      "enrollment_date": "2025-12-02T08:48:11.377092",
+      "last_updated": "2025-12-02T08:48:11.377092",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -18563,8 +18564,8 @@
         0.0913299024105072
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.012513",
-      "last_updated": "2025-11-27T18:30:40.012513",
+      "enrollment_date": "2025-12-02T08:48:11.491663",
+      "last_updated": "2025-12-02T08:48:11.491663",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -23206,8 +23207,8 @@
         0.0041032820008695126
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.163687",
-      "last_updated": "2025-11-27T18:30:40.163687",
+      "enrollment_date": "2025-12-02T08:48:11.602882",
+      "last_updated": "2025-12-02T08:48:11.602882",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -27849,8 +27850,8 @@
         -0.05888749659061432
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.310544",
-      "last_updated": "2025-11-27T18:30:40.310544",
+      "enrollment_date": "2025-12-02T08:48:11.715949",
+      "last_updated": "2025-12-02T08:48:11.715949",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -32492,8 +32493,8 @@
         0.001901350449770689
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.455783",
-      "last_updated": "2025-11-27T18:30:40.455783",
+      "enrollment_date": "2025-12-02T08:48:11.830588",
+      "last_updated": "2025-12-02T08:48:11.830588",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -37135,8 +37136,8 @@
         -0.0377255380153656
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.604472",
-      "last_updated": "2025-11-27T18:30:40.604472",
+      "enrollment_date": "2025-12-02T08:48:11.946456",
+      "last_updated": "2025-12-02T08:48:11.946456",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -41778,8 +41779,8 @@
         -0.04539133235812187
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.750131",
-      "last_updated": "2025-11-27T18:30:40.750131",
+      "enrollment_date": "2025-12-02T08:48:12.061250",
+      "last_updated": "2025-12-02T08:48:12.061250",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -46421,8 +46422,8 @@
         0.023066561669111252
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:40.893261",
-      "last_updated": "2025-11-27T18:30:40.893261",
+      "enrollment_date": "2025-12-02T08:48:12.178554",
+      "last_updated": "2025-12-02T08:48:12.178554",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -51064,8 +51065,8 @@
         -0.013272135518491268
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.038359",
-      "last_updated": "2025-11-27T18:30:41.038359",
+      "enrollment_date": "2025-12-02T08:48:12.291267",
+      "last_updated": "2025-12-02T08:48:12.291267",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -55707,8 +55708,8 @@
         -0.009039592929184437
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.180678",
-      "last_updated": "2025-11-27T18:30:41.180678",
+      "enrollment_date": "2025-12-02T08:48:12.404845",
+      "last_updated": "2025-12-02T08:48:12.404845",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -60350,8 +60351,8 @@
         0.06221523508429527
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.327408",
-      "last_updated": "2025-11-27T18:30:41.327408",
+      "enrollment_date": "2025-12-02T08:48:12.519588",
+      "last_updated": "2025-12-02T08:48:12.519588",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -64993,8 +64994,8 @@
         0.03447903320193291
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.472058",
-      "last_updated": "2025-11-27T18:30:41.472058",
+      "enrollment_date": "2025-12-02T08:48:12.632802",
+      "last_updated": "2025-12-02T08:48:12.632802",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -69636,8 +69637,8 @@
         -0.006402677856385708
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.622853",
-      "last_updated": "2025-11-27T18:30:41.622853",
+      "enrollment_date": "2025-12-02T08:48:12.746449",
+      "last_updated": "2025-12-02T08:48:12.746449",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -74279,8 +74280,8 @@
         -0.04637846350669861
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.775953",
-      "last_updated": "2025-11-27T18:30:41.775953",
+      "enrollment_date": "2025-12-02T08:48:12.860036",
+      "last_updated": "2025-12-02T08:48:12.860036",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -78922,8 +78923,8 @@
         -0.03167217597365379
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:41.922604",
-      "last_updated": "2025-11-27T18:30:41.922604",
+      "enrollment_date": "2025-12-02T08:48:12.974110",
+      "last_updated": "2025-12-02T08:48:12.974110",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -83565,8 +83566,8 @@
         -0.08220992237329483
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.068790",
-      "last_updated": "2025-11-27T18:30:42.068790",
+      "enrollment_date": "2025-12-02T08:48:13.088242",
+      "last_updated": "2025-12-02T08:48:13.088242",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -88208,8 +88209,8 @@
         -0.03490281477570534
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.214102",
-      "last_updated": "2025-11-27T18:30:42.214102",
+      "enrollment_date": "2025-12-02T08:48:13.204462",
+      "last_updated": "2025-12-02T08:48:13.204462",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -92851,8 +92852,8 @@
         -0.0009739850647747517
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.359620",
-      "last_updated": "2025-11-27T18:30:42.359620",
+      "enrollment_date": "2025-12-02T08:48:13.316512",
+      "last_updated": "2025-12-02T08:48:13.316512",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -97494,8 +97495,8 @@
         0.02751268818974495
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.504907",
-      "last_updated": "2025-11-27T18:30:42.504907",
+      "enrollment_date": "2025-12-02T08:48:13.431088",
+      "last_updated": "2025-12-02T08:48:13.431088",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -102137,8 +102138,8 @@
         -0.06695139408111572
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.654519",
-      "last_updated": "2025-11-27T18:30:42.654519",
+      "enrollment_date": "2025-12-02T08:48:13.550833",
+      "last_updated": "2025-12-02T08:48:13.550833",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,
@@ -106780,8 +106781,8 @@
         0.01869470626115799
       ],
       "num_samples": 8,
-      "enrollment_date": "2025-11-27T18:30:42.797913",
-      "last_updated": "2025-11-27T18:30:42.797913",
+      "enrollment_date": "2025-12-02T08:48:13.669177",
+      "last_updated": "2025-12-02T08:48:13.669177",
       "metadata": {
         "num_images": 1,
         "num_valid_faces": 1,

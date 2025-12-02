@@ -215,15 +215,23 @@ class GalleryManager:
         
         print(f"Gallery loaded from {load_path}")
     
-    def export_for_backup(self, backup_dir: str):
+    def export_for_backup(self, backup_dir: str, backup_name: str = None):
         os.makedirs(backup_dir, exist_ok=True)
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = os.path.join(backup_dir, f'gallery_backup_{timestamp}.pkl')
+
+        if backup_name:
+            backup_path = os.path.join(backup_dir, f'{backup_name}_backup_{timestamp}.pkl')
+            json_path = os.path.join(backup_dir, f'{backup_name}_backup_{timestamp}.json')
+        else:
+            backup_path = os.path.join(backup_dir, f'gallery_backup_{timestamp}.pkl')
+            json_path = os.path.join(backup_dir, f'gallery_backup_{timestamp}.json')
+        
         shutil.copy2(self.gallery_path, backup_path)
-        json_path = os.path.join(backup_dir, f'gallery_backup_{timestamp}.json')
+        
         json_data = {
             'backup_date': datetime.now().isoformat(),
+            'backup_name': backup_name,
             'num_students': len(self.students),
             'students': {sid: s.to_dict() for sid, s in self.students.items()}
         }
