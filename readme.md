@@ -8,3 +8,6 @@ to segment dataset based on criteria
 
 
 python face_recognition_live.py --session_name test_logging1
+
+python face_recognition_server.py --gallery gallery\adaface_ir101.pkl --host 0.0.0.0 --port 5000
+python face_recognition_client.py --server http://localhost:5000 --session_name client_server_testing_1

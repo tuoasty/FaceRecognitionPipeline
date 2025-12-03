@@ -1,0 +1,83 @@
+{
+  "session_id": "client_server_testing_4",
+  "last_updated": "2025-12-03T14:28:20.245382",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-03T14:28:05.738737",
+      "confidence": 0.7277015447616577,
+      "track_id": "track_0000",
+      "duration_seconds": 9.498746,
+      "detection_quality": {
+        "det_score": 0.9011051058769226,
+        "blur_score": 1321.2689664460183
+      },
+      "saved_face_path": "sessions\\client_server_testing_4\\recognized_faces\\STU0010_KH\\track_0000_20251203_142815_326891_conf0.728_aligned.jpg"
+    }
+  ],
+  "unrecognized": [
+    {
+      "track_id": "track_0001",
+      "first_seen": "2025-12-03T14:28:05.738737",
+      "duration_seconds": 14.335905,
+      "best_match": {
+        "name": "WS",
+        "student_id": "STU0021",
+        "confidence": 0.16857115924358368
+      },
+      "reason": "below_threshold",
+      "threshold": 0.5,
+      "attempts": 3,
+      "top_matches": [
+        {
+          "student_id": "STU0021",
+          "name": "WS",
+          "score": 0.16857115924358368
+        },
+        {
+          "student_id": "STU0002",
+          "name": "AS",
+          "score": 0.15628746151924133
+        },
+        {
+          "student_id": "STU0023",
+          "name": "YD",
+          "score": 0.13004127144813538
+        }
+      ],
+      "saved_face_path": "sessions\\client_server_testing_4\\unrecognized_faces\\track_0001_20251203_142820_157150_conf0.169_aligned.jpg"
+    },
+    {
+      "track_id": "track_0002",
+      "first_seen": "2025-12-03T14:28:05.738737",
+      "duration_seconds": 14.335905,
+      "best_match": {
+        "name": "BT",
+        "student_id": "STU0004",
+        "confidence": 0.2430303394794464
+      },
+      "reason": "below_threshold",
+      "threshold": 0.5,
+      "attempts": 3,
+      "top_matches": [
+        {
+          "student_id": "STU0004",
+          "name": "BT",
+          "score": 0.2430303394794464
+        },
+        {
+          "student_id": "STU0017",
+          "name": "RU",
+          "score": 0.16553811728954315
+        },
+        {
+          "student_id": "STU0021",
+          "name": "WS",
+          "score": 0.13904567062854767
+        }
+      ],
+      "saved_face_path": "sessions\\client_server_testing_4\\unrecognized_faces\\track_0002_20251203_142820_234380_conf0.243_aligned.jpg"
+    }
+  ]
+}

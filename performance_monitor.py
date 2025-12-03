@@ -326,9 +326,9 @@ class PerformanceMonitor:
       
       return performance_data
 
-  def __del__(self):
-    if self.enable_gpu_monitoring:
-      try:
-        pynvml.nvmlShutdown()
-      except:
-        pass
+def __del__(self):
+  if self.enable_gpu_monitoring:
+    try:
+      pynvml.nvmlShutdown()
+    except:
+      pass

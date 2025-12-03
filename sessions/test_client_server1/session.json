@@ -1,0 +1,20 @@
+{
+  "session_id": "test_client_server1",
+  "start_time": "2025-12-03T14:03:43.628775",
+  "end_time": "2025-12-03T14:04:52.060556",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.5,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 0,
+    "total_faces_detected": 0,
+    "total_recognition_attempts": 0,
+    "unique_students_recognized": 0,
+    "unrecognized_tracks": 0,
+    "average_fps": 0.0
+  },
+  "duration_seconds": 68.431781
+}
