@@ -10,11 +10,14 @@ from insightface.utils import face_align
 
 class FaceDetector:
   def __init__(self, det_size=(640, 640), det_thresh=0.5, 
-               providers=['CUDAExecutionProvider', 'CPUExecutionProvider']):
+               providers=None):
+    if providers is None:
+       provides = ['CUDAExecutionProvider', 'CPUExecutionProvider']
     self.app = FaceAnalysis(
       name='buffalo_l',
       providers=providers
-      )
+    )
+    ctx_id = 0 if 'CUDAExecutionProvider' in providers else -1
     self.app.prepare(ctx_id=0, det_size=det_size, det_thresh=det_thresh)
   
   def detect(self, image:np.ndarray) -> List[Dict]:
@@ -151,8 +154,9 @@ class FaceProcessor:
                 output_size=224,
                 det_size=(640, 640),
                 det_thresh=0.5,
-                quality_filter_config: Optional[Dict] = None):
-    self.detector = FaceDetector(det_size=det_size, det_thresh=det_thresh)
+                quality_filter_config: Optional[Dict] = None,
+                providers=None):
+    self.detector = FaceDetector(det_size=det_size, det_thresh=det_thresh, providers=providers)
     self.aligner = FaceAligner(output_size=output_size)
     
     if quality_filter_config is None:

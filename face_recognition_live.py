@@ -8,10 +8,12 @@ from pathlib import Path
 from datetime import datetime
 from collections import deque
 import time
+import torch
 
 from face_recognition import FaceProcessor
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
+from performance_monitor import PerformanceMonitor
 
 class LiveRecognitionTracker:
   def __init__(self, recognition_interval=30, max_attempts=3, buffer_size=10):
@@ -85,7 +87,14 @@ class LiveFaceRecognition:
                 session_name=None,
                 recognition_interval=30,
                 max_recognition_attempts=3,
-                frame_buffer_size=10):
+                frame_buffer_size=10,
+                enable_performance_monitoring=True,
+                enable_gpu_monitoring=True,
+                use_gpu=True,
+                model_type='adaface',
+                architecture='ir_101',
+                auto_snapshot=True,
+                snapshot_interval=5.0):
     
     print("\n" + "="*70)
     print("INITIALIZING LIVE FACE RECOGNITION SYSTEM")
@@ -96,6 +105,12 @@ class LiveFaceRecognition:
     self.max_recognition_attempts = max_recognition_attempts
     
     print("\nLoading face detection model...")
+    if use_gpu and torch.cuda.is_available():
+      providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+      print("  Using GPU for face detection")
+    else:
+      providers = ['CPUExecutionProvider']
+      print("  Using CPU for face detection")
     self.face_processor = FaceProcessor(
       output_size=112,
       det_size=(640, 640),
@@ -108,11 +123,25 @@ class LiveFaceRecognition:
         'max_roll': 45,
         'check_blur': True,
         'blur_threshold': 50
-      }
+      },
+      providers=providers
     )
 
-    print("\nLoading AdaFace recognition model...")
-    self.embedder = FaceEmbedder(architecture='ir_101')
+    print(f"\nLoading {model_type.upper()} recognition model ({architecture})...")
+    if use_gpu and torch.cuda.is_available():
+      device = torch.device('cuda')
+      print("  Using GPU for face recognition")
+    else:
+      device = torch.device('cpu')
+      print("  Using CPU for face recognition")
+
+    self.embedder = FaceEmbedder(
+      architecture=architecture,
+      model_type=model_type,
+      device=device
+    )
+    self.model_type = model_type
+    self.architecture = architecture
     
     print("\nLoading student gallery...")
     self.gallery = GalleryManager(gallery_path=gallery_path)
@@ -122,20 +151,45 @@ class LiveFaceRecognition:
     if num_students == 0:
       print("\nWARNING: Gallery is empty! Please enroll students first.")
 
+    self.session_name = session_name or f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    self.session_dir = os.path.join(output_dir, self.session_name)
+    os.makedirs(self.session_dir, exist_ok=True)
+
+    if enable_performance_monitoring:
+      model_id = f"{model_type.upper()}_{architecture.upper()}_InsightFace_Buffalo"
+      device_str = "GPU" if (use_gpu and torch.cuda.is_available()) else "CPU"
+      model_id += f"_{device_str}"
+      self.perf_monitor = PerformanceMonitor(
+        model_identifier=model_id,
+        session_name=self.session_name,
+        output_dir=self.session_dir,
+        enable_gpu_monitoring=enable_gpu_monitoring,
+        latency_window_size=100
+      )
+      self.perf_monitor.log_detailed_frames = False
+    else:
+      self.perf_monitor = None
+
     self.tracker = LiveRecognitionTracker(
       recognition_interval=recognition_interval,
       max_attempts=max_recognition_attempts,
       buffer_size=frame_buffer_size
     )
-    self.session_name = session_name or f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    self.session_dir = os.path.join(output_dir, self.session_name)
-    os.makedirs(self.session_dir, exist_ok=True)
-
+    
     self.recognized_faces_dir = os.path.join(self.session_dir, 'recognized_faces')
     self.unrecognized_faces_dir = os.path.join(self.session_dir, 'unrecognized_faces')
     os.makedirs(self.recognized_faces_dir, exist_ok=True)
     os.makedirs(self.unrecognized_faces_dir, exist_ok=True)
-    
+
+    self.snapshots_dir = os.path.join(self.session_dir, 'snapshots')
+    if auto_snapshot:
+      os.makedirs(self.snapshots_dir, exist_ok=True)
+
+    self.auto_snapshot = auto_snapshot
+    self.snapshot_interval = snapshot_interval
+    self.last_snapshot_time = None
+    self.snapshot_count = 0
+        
     self.session_start = datetime.now()
     self.frame_count = 0
     self.total_faces_detected = 0
@@ -264,19 +318,29 @@ class LiveFaceRecognition:
     return recognition_result
   
   def process_frame(self, frame: np.ndarray) -> Dict:
+    if self.perf_monitor:
+      timings = self.perf_monitor.start_frame()
+
     self.frame_count += 1
     timestamp = datetime.now().isoformat()
  
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    if self.perf_monitor:
+      self.perf_monitor.mark_capture_end(timings)
     faces = self.face_processor.process_numpy(frame_rgb, return_all=True)
     for face in faces:
       x1, y1, x2, y2 = map(int, face['bbox'])
       face['original_crop'] = frame_rgb[y1:y2, x1:x2].copy()
     self.total_faces_detected += len(faces)
 
+    if self.perf_monitor:
+      self.perf_monitor.mark_detection_end(timings)
+
     tracked_faces = self._simple_track_assignment(faces)
     
     recognition_events = []
+    num_recognized_this_frame = 0
+    num_unknown_this_frame = 0
     
     for track_id, track_data in tracked_faces.items():
       face = track_data['face']
@@ -292,6 +356,7 @@ class LiveFaceRecognition:
           
           if result is not None:
             if result['recognized']:
+              num_recognized_this_frame += 1
               self.tracker.mark_recognized(track_id, result)
               face_filename = self._save_face_image(
                 best_frame['aligned_face'],
@@ -304,14 +369,15 @@ class LiveFaceRecognition:
               )
               result['saved_face_path'] = face_filename
               recognition_events.append(('recognized', result))
-              print(f"[Frame {self.frame_count}] ✓ Recognized: {result['name']} "
+              print(f"[Frame {self.frame_count}] Recognized: {result['name']} "
                 f"(track_{track_id:04d}, confidence: {result['confidence']:.3f})")
             else:
-              print(f"[Frame {self.frame_count}] ⚠ Below threshold: {result['name']} "
+              print(f"[Frame {self.frame_count}] Below threshold: {result['name']} "
                 f"(track_{track_id:04d}, confidence: {result['confidence']:.3f}, "
                 f"threshold: {self.similarity_threshold})")
 
               if self.tracker.recognition_attempts.get(track_id, 0) >= self.max_recognition_attempts:
+                num_unknown_this_frame += 1
                 face_filename = self._save_face_image(
                   best_frame['aligned_face'],
                   track_id,
@@ -323,15 +389,41 @@ class LiveFaceRecognition:
                 result['saved_face_path'] = face_filename
                 recognition_events.append(('unrecognized', result))
 
+    if self.perf_monitor:
+      self.perf_monitor.mark_recognition_end(timings)
+
     if recognition_events:
       self._update_attendance(recognition_events)
+
+    if self.perf_monitor:
+      perf_metrics = self.perf_monitor.end_frame(
+        timings,
+        num_faces_detected=len(faces),
+        num_faces_recognized=num_recognized_this_frame,
+        num_faces_unknown=num_unknown_this_frame
+      )
+    else:
+      perf_metrics = {}
     
     return {
       'frame_count': self.frame_count,
       'faces_detected': len(faces),
       'active_tracks': len(tracked_faces),
-      'recognition_events': len(recognition_events)
+      'recognition_events': len(recognition_events),
+      'performance': perf_metrics
     }
+  
+  def _save_snapshot(self, frame: np.ndarray, frame_count: int, timestamp: str = None) -> str:
+    if timestamp is None:
+      timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    self.snapshot_count += 1
+    
+    filename = f'snapshot_{self.snapshot_count:04d}_frame_{frame_count:06d}_{timestamp}.jpg'
+    filepath = os.path.join(self.snapshots_dir, filename)
+    
+    cv2.imwrite(filepath, frame)
+    return filepath
   
   def _save_face_image(self, 
                         aligned_face: np.ndarray,
@@ -428,6 +520,9 @@ class LiveFaceRecognition:
     fps_start_time = time.time()
     fps_frame_count = 0
     current_fps = 0
+
+    if self.auto_snapshot:
+      self.last_snapshot_time = time.time()
     
     try:
       while True:
@@ -442,7 +537,15 @@ class LiveFaceRecognition:
           current_fps = fps_frame_count / (fps_end_time - fps_start_time)
           fps_start_time = fps_end_time
           fps_frame_count = 0
-        
+
+        if self.auto_snapshot:
+          current_time = time.time()
+          if current_time - self.last_snapshot_time >= self.snapshot_interval:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            snapshot_path = self._save_snapshot(frame, self.frame_count, timestamp)
+            print(f"[Auto-snapshot] Saved: {os.path.basename(snapshot_path)}")
+            self.last_snapshot_time = current_time
+  
         if display:
           display_frame = self._draw_display(frame, result, current_fps)
           cv2.imshow('Live Face Recognition', display_frame)
@@ -507,6 +610,17 @@ class LiveFaceRecognition:
       f"Active Tracks: {result['active_tracks']}",
       f"Recognized: {len(self.tracker.recognized_tracks)}"
     ]
+
+    if self.perf_monitor and 'performance' in result:
+      perf = result["performance"]
+      current_stats = self.perf_monitor.get_current_stats()
+      stats.extend([
+        f"Latency: {perf.get('latency_e2e_ms', 0):.1f}ms",
+        f"RAM: {current_stats.get('current_cpu_ram_mb', 0):.0f}MB"
+      ])
+      if self.perf_monitor.enable_gpu_monitoring:
+          current_stats = self.perf_monitor.get_current_stats()
+          stats.append(f"VRAM: {current_stats.get('current_gpu_vram_mb', 0):.0f}MB")
     
     for stat in stats:
       cv2.putText(display, stat, (10, stats_y),
@@ -522,6 +636,9 @@ class LiveFaceRecognition:
     
     session_end = datetime.now()
     duration = (session_end - self.session_start).total_seconds()
+
+    if self.perf_monitor:
+      perf_report = self.perf_monitor.finalize_session()
   
     session_path = os.path.join(self.session_dir, 'session.json')
     attendance_path = os.path.join(self.session_dir, 'attendance.json')
@@ -549,6 +666,11 @@ class LiveFaceRecognition:
     print(f"Duration: {duration:.1f} seconds")
     print(f"Frames processed: {self.frame_count}")
     print(f"Average FPS: {session_data['statistics']['average_fps']:.1f}")
+
+    if self.auto_snapshot:
+      print(f"Snapshots captured: {self.snapshot_count}")
+
+
     print(f"\nRecognized students: {len(attendance_data['recognized'])}")
     for student in attendance_data['recognized']:
       print(f"{student['name']} ({student['student_id']}) - confidence: {student['confidence']:.3f}")
@@ -574,7 +696,7 @@ def main():
   parser.add_argument(
     '--gallery',
     type=str,
-    default='gallery/students.pkl',
+    default='gallery/adaface_ir101.pkl',
     help='Path to student gallery database'
   )
   parser.add_argument(
@@ -618,8 +740,72 @@ def main():
     default=None,
     help='Maximum frames to process (for testing)'
   )
-  
+  parser.add_argument(
+    '--enable_perf_monitor',
+    action='store_true',
+    default=True,
+    help='Enable performance monitoring (default: True)'
+  )
+  parser.add_argument(
+    '--enable_gpu_monitor',
+    action='store_true',
+    default=True,
+    help='Enable GPU monitoring if available (default: True)'
+  )
+  parser.add_argument(
+    '--use_gpu',
+    action='store_true',
+    default=True,
+    help='Use GPU acceleration (default: True)'
+  )
+  parser.add_argument(
+    '--use_cpu',
+    action='store_true',
+    help='Force CPU usage (overrides --use_gpu)'
+  )
+  parser.add_argument(
+    '--model_type',
+    type=str,
+    default='adaface',
+    choices=['adaface', 'arcface'],
+    help='Type of face recognition model to use (default: adaface)'
+  )
+  parser.add_argument(
+    '--architecture',
+    type=str,
+    default='ir_101',
+    choices=['ir_50', 'ir_101'],
+    help='Model architecture - ir_50 or ir_101 (default: ir_101)'
+  )
+
+  parser.add_argument(
+    '--auto_snapshot',
+    action='store_true',
+    default=True,
+    help='Enable automatic snapshot capture (default: True)'
+  )
+  parser.add_argument(
+    '--no_auto_snapshot',
+    action='store_true',
+    help='Disable automatic snapshot capture'
+  )
+  parser.add_argument(
+    '--snapshot_interval',
+    type=float,
+    default=5.0,
+    help='Interval between auto-snapshots in seconds (default: 5.0)'
+  )
+      
   args = parser.parse_args()
+  use_gpu = args.use_gpu and not args.use_cpu
+  if use_gpu:
+    if torch.cuda.is_available():
+      print(f"Using GPU: {torch.cuda.get_device_name(0)}")
+    else:
+      print("GPU requested but not available, falling back to CPU")
+      use_gpu = False
+  else:
+      print("Using CPU (GPU disabled)")
 
   recognizer = LiveFaceRecognition(
     gallery_path=args.gallery,
@@ -627,7 +813,14 @@ def main():
     output_dir=args.output_dir,
     session_name=args.session_name,
     recognition_interval=args.recognition_interval,
-    max_recognition_attempts=args.max_attempts
+    max_recognition_attempts=args.max_attempts,
+    enable_performance_monitoring=args.enable_perf_monitor,
+    enable_gpu_monitoring=args.enable_gpu_monitor,
+    use_gpu=use_gpu,
+    model_type=args.model_type,
+    architecture=args.architecture,
+    auto_snapshot=args.auto_snapshot,
+    snapshot_interval=args.snapshot_interval
   )
   
   recognizer.run(

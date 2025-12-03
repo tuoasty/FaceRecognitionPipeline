@@ -1,0 +1,78 @@
+{
+  "session_info": {
+    "session_name": "test_logging3",
+    "model_identifier": "ADAFACE_IR_101_InsightFace_Buffalo_CPU",
+    "start_time": "2025-12-03T13:19:11.556442",
+    "end_time": "2025-12-03T13:19:40.359030",
+    "duration_seconds": 28.802588
+  },
+  "frame_statistics": {
+    "total_frames_processed": 110,
+    "total_faces_detected": 135,
+    "total_faces_recognized": 1,
+    "total_faces_unknown": 0,
+    "avg_faces_per_frame": 1.2272727272727273,
+    "recognition_rate": 0.007407407407407408
+  },
+  "fps_metrics": {
+    "average_fps": 3.8191012557621558,
+    "current_fps": 5.146604822447027,
+    "fps_history": [
+      {
+        "timestamp": 1764742763.9034758,
+        "fps": 2.429733566062616,
+        "frame_number": 30
+      },
+      {
+        "timestamp": 1764742769.9986677,
+        "fps": 4.921912257841631,
+        "frame_number": 60
+      },
+      {
+        "timestamp": 1764742775.8277533,
+        "fps": 5.146604822447027,
+        "frame_number": 90
+      }
+    ]
+  },
+  "latency_metrics": {
+    "end_to_end": {
+      "average_ms": 206.84185299905948,
+      "max_ms": 668.1398999935482,
+      "min_ms": 157.88179999799468,
+      "unit": "milliseconds"
+    },
+    "capture": {
+      "average_ms": 0.5204670019156765,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 202.4379580000823,
+      "unit": "milliseconds"
+    },
+    "recognition": {
+      "average_ms": 3.77183500022511,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 1489.62890625,
+      "peak_mb": 1712.3828125,
+      "delta_mb": 222.75390625,
+      "unit": "megabytes"
+    },
+    "gpu_vram": {
+      "baseline_mb": 132.0,
+      "peak_mb": 353.7421875,
+      "delta_mb": 221.7421875,
+      "unit": "megabytes",
+      "available": true
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203,
+    "gpu_available": true
+  }
+}

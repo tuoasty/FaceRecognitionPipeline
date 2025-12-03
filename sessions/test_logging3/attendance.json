@@ -1,0 +1,20 @@
+{
+  "session_id": "test_logging3",
+  "last_updated": "2025-12-03T13:19:23.903475",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-03T13:19:15.443495",
+      "confidence": 0.7195835709571838,
+      "track_id": "track_0000",
+      "duration_seconds": 7.792668,
+      "detection_quality": {
+        "det_score": 0.8510620594024658,
+        "blur_score": 1184.6013816506204
+      },
+      "saved_face_path": "sessions\\test_logging3\\recognized_faces\\STU0010_KH\\track_0000_20251203_131923_744859_conf0.720_aligned.jpg"
+    }
+  ],
+  "unrecognized": []
+}
