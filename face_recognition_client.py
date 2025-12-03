@@ -13,6 +13,7 @@ import base64
 from datetime import datetime
 
 from face_recognition import FaceProcessor
+from performance_monitor_client import PerformanceMonitorClient
 
 class FaceRecognitionClient:
   def __init__(self,
@@ -21,13 +22,16 @@ class FaceRecognitionClient:
               auto_snapshot=True,
               snapshot_interval=5.0,
               max_tracking_distance=100,
-              session_name=None):
+              session_name=None,
+              enable_performance_monitoring=True):
     
     print("\n" + "="*70)
     print("INITIALIZING FACE RECOGNITION CLIENT")
     print("="*70)
     
     self.server_url = server_url.rstrip('/')
+    self.enable_performance_monitoring = enable_performance_monitoring
+    
     try:
       response = requests.get(f'{self.server_url}/health', timeout=5)
       if response.status_code == 200:
@@ -58,6 +62,17 @@ class FaceRecognitionClient:
       print(f"Warning: Could not initialize session on server: {e}")
 
     self.session_name = session_name
+    
+    if self.enable_performance_monitoring:
+      temp_output_dir = os.path.join('.', 'temp_client_perf')
+      self.perf_monitor = PerformanceMonitorClient(
+        session_name=self.session_name,
+        output_dir=temp_output_dir,
+        latency_window_size=100
+      )
+      self.perf_monitor.log_detailed_frames = False
+    else:
+      self.perf_monitor = None
     
     print("\nLoading face detection model...")
     if use_gpu and torch.cuda.is_available():
@@ -175,12 +190,23 @@ class FaceRecognitionClient:
   def process_frame(self, frame: np.ndarray) -> Dict:
     self.frame_count += 1
 
+    if self.perf_monitor:
+      timings = self.perf_monitor.start_frame()
+
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    
+    if self.perf_monitor:
+      self.perf_monitor.mark_capture_end(timings)
+
     faces = self.face_processor.process_numpy(frame_rgb, return_all=True)
+    
+    if self.perf_monitor:
+      self.perf_monitor.mark_detection_end(timings)
     
     for face in faces:
       x1, y1, x2, y2 = map(int, face['bbox'])
       face['original_crop'] = frame_rgb[y1:y2, x1:x2].copy()
+    
     tracked_faces = self._simple_track_assignment(faces)
 
     faces_to_send = []
@@ -190,8 +216,12 @@ class FaceRecognitionClient:
       faces_to_send.append(face_data)
 
     result = {'faces_detected': len(faces), 'active_tracks': len(tracked_faces)}
+    network_request_sent = False
     
     if faces_to_send:
+      if self.perf_monitor:
+        self.perf_monitor.mark_network_start(timings)
+      
       try:
         response = requests.post(
           f'{self.server_url}/process_faces',
@@ -201,6 +231,11 @@ class FaceRecognitionClient:
           },
           timeout=5
         )
+        
+        if self.perf_monitor:
+          self.perf_monitor.mark_network_end(timings)
+        
+        network_request_sent = True
         
         if response.status_code == 200:
           server_result = response.json()
@@ -212,7 +247,17 @@ class FaceRecognitionClient:
           print(f"Server error: {response.status_code}")
       except Exception as e:
         print(f"Error sending to server: {e}")
-  
+        if self.perf_monitor:
+          self.perf_monitor.mark_network_end(timings)
+    
+    if self.perf_monitor:
+      perf_metrics = self.perf_monitor.end_frame(
+        timings,
+        num_faces_detected=len(faces),
+        network_request_sent=network_request_sent
+      )
+      result['client_performance'] = perf_metrics
+    
     return result
   
   def send_snapshot(self, frame: np.ndarray):
@@ -243,8 +288,21 @@ class FaceRecognitionClient:
       return False
 
   def finalize_session(self):
+    client_report = None
+    if self.perf_monitor:
+      client_report = self.perf_monitor.finalize_session()
+    
     try:
-      response = requests.post(f'{self.server_url}/finalize', timeout=10)
+      payload = {}
+      if client_report:
+        payload['client_performance_report'] = client_report
+      
+      response = requests.post(
+        f'{self.server_url}/finalize',
+        json=payload,
+        timeout=10
+      )
+      
       if response.status_code == 200:
         print("Session finalized on server")
       else:
@@ -277,6 +335,7 @@ class FaceRecognitionClient:
         if not ret:
           print("Failed to read frame")
           break
+        
         result = self.process_frame(frame)
         
         fps_frame_count += 1
@@ -291,6 +350,7 @@ class FaceRecognitionClient:
           if current_time - self.last_snapshot_time >= self.snapshot_interval:
             self.send_snapshot(frame)
             self.last_snapshot_time = current_time
+        
         if display:
           display_frame = self._draw_display(frame, result, current_fps)
           cv2.imshow('Face Recognition Client', display_frame)
@@ -344,6 +404,7 @@ class FaceRecognitionClient:
       cv2.rectangle(display, (x1, y1 - h - 10), (x1 + w, y1), color, -1)
       cv2.putText(display, label, (x1, y1 - 5),
                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+
     stats_y = 30
     stats = [
       f"Frame: {self.frame_count}",
@@ -352,6 +413,12 @@ class FaceRecognitionClient:
       f"Active Tracks: {result.get('active_tracks', 0)}",
       f"Recognized: {len(self.recognized_tracks)}"
     ]
+    
+    if 'client_performance' in result:
+      perf = result['client_performance']
+      stats.append(f"Capture: {perf.get('latency_capture_ms', 0):.1f}ms")
+      stats.append(f"Detection: {perf.get('latency_detection_ms', 0):.1f}ms")
+      stats.append(f"Network: {perf.get('latency_network_send_ms', 0):.1f}ms")
     
     for stat in stats:
       cv2.putText(display, stat, (10, stats_y),
@@ -413,13 +480,19 @@ def main():
     '--snapshot_interval',
     type=float,
     default=30.0,
-    help='Interval between auto-snapshots in seconds (default: 5.0)'
+    help='Interval between auto-snapshots in seconds (default: 30.0)'
   )
   parser.add_argument(
     '--session_name',
     type=str,
     default=None,
     help='Custom session name (default: auto-generated)'
+  )
+  parser.add_argument(
+    '--enable_perf_monitor',
+    action='store_true',
+    default=True,
+    help='Enable performance monitoring (default: True)'
   )
       
   args = parser.parse_args()
@@ -441,7 +514,8 @@ def main():
     use_gpu=use_gpu,
     auto_snapshot=auto_snapshot,
     snapshot_interval=args.snapshot_interval,
-    session_name=args.session_name
+    session_name=args.session_name,
+    enable_performance_monitoring=args.enable_perf_monitor
   )
   
   client.run(

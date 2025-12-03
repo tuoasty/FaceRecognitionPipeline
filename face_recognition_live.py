@@ -13,7 +13,7 @@ import torch
 from face_recognition import FaceProcessor
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
-from performance_monitor import PerformanceMonitor
+from performance_monitor_server import PerformanceMonitor
 
 class LiveRecognitionTracker:
   def __init__(self, recognition_interval=30, max_attempts=3, buffer_size=10):

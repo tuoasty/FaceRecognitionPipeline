@@ -13,7 +13,7 @@ import base64
 
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
-from performance_monitor import PerformanceMonitor
+from performance_monitor_server import PerformanceMonitorServer
 
 app = Flask(__name__)
 
@@ -168,14 +168,14 @@ class FaceRecognitionServer:
       model_id = f"{self.model_type.upper()}_{self.architecture.upper()}"
       device_str = "GPU" if str(self.embedder.device) == "cuda" else "CPU"
       model_id += f"_{device_str}"
-      self.perf_monitor = PerformanceMonitor(
+      self.perf_monitor = PerformanceMonitorServer(
         model_identifier=model_id,
         session_name=self.session_name,
         output_dir=self.session_dir,
         enable_gpu_monitoring=self.enable_gpu_monitoring,
         latency_window_size=100
       )
-      self.perf_monitor.log_detailed_frames = False
+      self.perf_monitor.log_detailed_requests = False
 
     self.tracker = LiveRecognitionTracker(
       recognition_interval=self.recognition_interval,
@@ -279,8 +279,9 @@ class FaceRecognitionServer:
     return recognition_result
   
   def process_faces(self, faces_data: List[Dict], frame_count: int) -> Dict:
+    # Start request timing
     if self.perf_monitor:
-      timings = self.perf_monitor.start_frame()
+      timings = self.perf_monitor.start_request()
 
     self.frame_count = frame_count
     timestamp = datetime.now().isoformat()
@@ -288,8 +289,12 @@ class FaceRecognitionServer:
     self.total_faces_detected += len(faces_data)
     
     recognition_events = []
-    num_recognized_this_frame = 0
-    num_unknown_this_frame = 0
+    num_recognized_this_request = 0
+    num_unknown_this_request = 0
+    
+    # Mark recognition processing start
+    if self.perf_monitor:
+      self.perf_monitor.mark_recognition_start(timings)
     
     for face_data in faces_data:
       track_id = face_data['track_id']
@@ -305,7 +310,7 @@ class FaceRecognitionServer:
           
           if result is not None:
             if result['recognized']:
-              num_recognized_this_frame += 1
+              num_recognized_this_request += 1
               self.tracker.mark_recognized(track_id, result)
               face_filename = self._save_face_image(
                 best_frame['aligned_face_base64'],
@@ -326,7 +331,7 @@ class FaceRecognitionServer:
                 f"threshold: {self.similarity_threshold})")
 
               if self.tracker.recognition_attempts.get(track_id, 0) >= self.max_recognition_attempts:
-                num_unknown_this_frame += 1
+                num_unknown_this_request += 1
                 face_filename = self._save_face_image(
                   best_frame['aligned_face_base64'],
                   track_id,
@@ -337,19 +342,21 @@ class FaceRecognitionServer:
                 )
                 result['saved_face_path'] = face_filename
                 recognition_events.append(('unrecognized', result))
-
+    
+    # Mark recognition processing end
     if self.perf_monitor:
       self.perf_monitor.mark_recognition_end(timings)
 
     if recognition_events:
       self._update_attendance(recognition_events)
 
+    # End request timing
     if self.perf_monitor:
-      perf_metrics = self.perf_monitor.end_frame(
+      perf_metrics = self.perf_monitor.end_request(
         timings,
-        num_faces_detected=len(faces_data),
-        num_faces_recognized=num_recognized_this_frame,
-        num_faces_unknown=num_unknown_this_frame
+        num_faces_processed=len(faces_data),
+        num_faces_recognized=num_recognized_this_request,
+        num_faces_unknown=num_unknown_this_request
       )
     else:
       perf_metrics = {}
@@ -455,7 +462,7 @@ class FaceRecognitionServer:
     
     return filepath
   
-  def finalize_session(self):
+  def finalize_session(self, client_report: Optional[Dict] = None):
     print("\n" + "="*70)
     print("FINALIZING SESSION")
     print("="*70)
@@ -464,7 +471,7 @@ class FaceRecognitionServer:
     duration = (session_end - self.session_start).total_seconds()
 
     if self.perf_monitor:
-      perf_report = self.perf_monitor.finalize_session()
+      perf_report = self.perf_monitor.finalize_session(client_report=client_report)
 
     session_path = os.path.join(self.session_dir, 'session.json')
     attendance_path = os.path.join(self.session_dir, 'attendance.json')
@@ -483,15 +490,13 @@ class FaceRecognitionServer:
       'total_faces_detected': self.total_faces_detected,
       'total_recognition_attempts': self.total_recognition_attempts,
       'unique_students_recognized': len(attendance_data['recognized']),
-      'unrecognized_tracks': len(attendance_data['unrecognized']),
-      'average_fps': self.frame_count / duration if duration > 0 else 0
+      'unrecognized_tracks': len(attendance_data['unrecognized'])
     }
     
     self._write_session(session_data)
     print(f"\nSession: {self.session_name}")
     print(f"Duration: {duration:.1f} seconds")
     print(f"Frames processed: {self.frame_count}")
-    print(f"Average FPS: {session_data['statistics']['average_fps']:.1f}")
 
     print(f"\nRecognized students: {len(attendance_data['recognized'])}")
     for student in attendance_data['recognized']:
@@ -538,7 +543,12 @@ def save_snapshot():
 def finalize():
   if server.session_name is None:
     return jsonify({'error': 'No active session'}), 400
-  server.finalize_session()
+  
+  # Get client performance report if provided
+  data = request.json or {}
+  client_report = data.get('client_performance_report')
+  
+  server.finalize_session(client_report=client_report)
   return jsonify({'status': 'finalized'})
 
 @app.route('/init_session', methods=['POST'])
