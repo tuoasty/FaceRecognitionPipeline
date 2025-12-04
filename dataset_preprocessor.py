@@ -30,7 +30,8 @@ class DatasetPreprocessor:
       output_size=output_size,
       det_size=det_size,
       det_thresh=det_thresh,
-      quality_filter_config=quality_filter_config
+      quality_filter_config=quality_filter_config,
+      providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
     )
   
   def standardize_filename(self, original_path: str, class_id: str, angle: str, image_idx: int) -> str:

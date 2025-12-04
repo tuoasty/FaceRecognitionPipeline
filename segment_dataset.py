@@ -7,10 +7,10 @@ import argparse
 
 class ProbeSegmenter:
   def __init__(self, 
-                yaw_threshold: float = 25.0,
-                pitch_threshold: float = 20.0,
-                blur_threshold: float = 100.0,
-                det_score_threshold: float = 0.85):
+                yaw_threshold: float = 35.0,
+                pitch_threshold: float = 30.0,
+                blur_threshold: float = 70.0,
+                det_score_threshold: float = 0.7):
     self.yaw_threshold = yaw_threshold
     self.pitch_threshold = pitch_threshold
     self.blur_threshold = blur_threshold
@@ -65,6 +65,36 @@ class ProbeSegmenter:
     
     return categories
 
+  def build_filename_mapping(self, input_dir: str, metadata_list: List[Dict]) -> Dict[str, str]:
+    actual_files = set(os.listdir(input_dir))
+    
+    filename_mapping = {}
+    unmatched_metadata = []
+    
+    for metadata in metadata_list:
+      original_filename = metadata['filename']
+      
+      matched = False
+      for actual_file in actual_files:
+        if actual_file.endswith(original_filename):
+          filename_mapping[original_filename] = actual_file
+          matched = True
+          break
+      
+      if not matched:
+        unmatched_metadata.append(original_filename)
+    
+    if unmatched_metadata:
+      print(f"\nWarning: {len(unmatched_metadata)} metadata entries without matching files:")
+      for fname in unmatched_metadata[:10]:
+        print(f"  - {fname}")
+      if len(unmatched_metadata) > 10:
+        print(f"  ... and {len(unmatched_metadata) - 10} more")
+    
+    print(f"\nSuccessfully mapped {len(filename_mapping)}/{len(metadata_list)} files")
+    
+    return filename_mapping
+
   def segment_dataset(self,
                       input_dir: str,
                       metadata_file: str,
@@ -90,6 +120,9 @@ class ProbeSegmenter:
     
     print(f"Loaded metadata for {len(metadata_list)} faces\n")
 
+    print("Building filename mapping...")
+    filename_mapping = self.build_filename_mapping(input_dir, metadata_list)
+
     category_dirs = {}
     for category in self.categories:
       category_path = os.path.join(output_dir, category)
@@ -101,18 +134,25 @@ class ProbeSegmenter:
     skipped_count = 0
 
     for metadata in metadata_list:
-      filename = metadata['filename']
-      source_path = os.path.join(input_dir, filename)
+      original_filename = metadata['filename']
+
+      if original_filename not in filename_mapping:
+        print(f"Warning: No matching file for metadata: {original_filename}")
+        skipped_count += 1
+        continue
+      
+      actual_filename = filename_mapping[original_filename]
+      source_path = os.path.join(input_dir, actual_filename)
 
       if not os.path.exists(source_path):
-        print(f"Warning: File not found: {filename}")
+        print(f"Warning: File not found: {actual_filename}")
         skipped_count += 1
         continue
       
       categories = self.categorize_face(metadata)
       
       for category in categories:
-        dest_path = os.path.join(category_dirs[category], filename)
+        dest_path = os.path.join(category_dirs[category], actual_filename)
         
         try:
           if copy_files:
@@ -125,7 +165,7 @@ class ProbeSegmenter:
           
           category_counts[category] += 1
         except Exception as e:
-          print(f"Error processing {filename} -> {category}: {e}")
+          print(f"Error processing {actual_filename} -> {category}: {e}")
       
       processed_count += 1
  
@@ -137,7 +177,11 @@ class ProbeSegmenter:
       for metadata in metadata_list:
         categories = self.categorize_face(metadata)
         if category in categories:
-          category_metadata.append(metadata)
+          metadata_copy = metadata.copy()
+          original_filename = metadata['filename']
+          if original_filename in filename_mapping:
+            metadata_copy['labeled_filename'] = filename_mapping[original_filename]
+          category_metadata.append(metadata_copy)
     
       metadata_path = os.path.join(
         category_dirs[category], 
@@ -164,7 +208,6 @@ class ProbeSegmenter:
     self.print_quality_insights(metadata_list)
   
   def print_quality_insights(self, metadata_list: List[Dict]):
-      """Print additional insights about the dataset quality."""
       print("Quality Insights:")
       print("-" * 70)
       
@@ -225,25 +268,25 @@ def main():
   parser.add_argument(
     '--yaw_threshold',
     type=float,
-    default=25.0,
+    default=35.0,
     help='Absolute yaw angle threshold for high_yaw category (degrees)'
   )
   parser.add_argument(
     '--pitch_threshold',
     type=float,
-    default=20.0,
+    default=25.0,
     help='Absolute pitch angle threshold for high_pitch category (degrees)'
   )
   parser.add_argument(
     '--blur_threshold',
     type=float,
-    default=100.0,
+    default=50.0,
     help='Blur score threshold (below = blurry)'
   )
   parser.add_argument(
     '--det_score_threshold',
     type=float,
-    default=0.85,
+    default=0.7,
     help='Detection score threshold (below = low quality)'
   )
   parser.add_argument(

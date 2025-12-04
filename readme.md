@@ -12,10 +12,13 @@ python AdaFace\inference\enroll_students.py --enrollment_dir dataset\enrollment 
 To match
 python AdaFace\inference\face_matcher.py --single_image AdaFace\inference\samples\random\random_6.jpg --gallery_path AdaFace\inference\gallery\adaface_ir101_2.pkl --model_type adaface --architecture ir_101
 
+To label
+python AdaFace\inference\probe_labeler.py --probe_dir output\preprocessed\probe_positive --output_dir output\preprocessed\probe_positive_labeled --metadata output\preprocessed\probe_positive_metadata.json --gallery_path AdaFace\inference\gallery\adaface_ir101_3.pkl --model_type adaface --architecture ir_101
+
 In /inference directory
 python face_recognition_live.py --session_name test_logging1
 
 python face_recognition_server.py --gallery gallery\adaface_ir101.pkl --host 0.0.0.0 --port 5000
-python face_recognition_client.py --server http://localhost:5000 --session_name client_server_testing_1
+python face_recognition_client.py --server http://10.22.78.202:5000 --session_name remote_test_1
 
 http://10.22.78.202:5000
