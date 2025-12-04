@@ -11,9 +11,14 @@ from collections import Counter
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
 
+def get_script_dir():
+    return Path(__file__).resolve().parent
+
+SCRIPT_DIR = get_script_dir()
+
 class FaceMatcher:
   def __init__(self,
-                gallery_path='gallery/students.pkl',
+                gallery_path=None,
                 similarity_threshold=0.5,
                 aggregation_method='majority_vote',
                 model_type='adaface',
@@ -22,6 +27,9 @@ class FaceMatcher:
     self.aggregation_method = aggregation_method
     self.model_type = model_type
     self.architecture = architecture
+
+    if gallery_path is None:
+     gallery_path = str(SCRIPT_DIR / 'gallery' / 'students.pkl')
     
     print("Initializing Face Matcher...")
     print("="*60)
@@ -161,7 +169,8 @@ class FaceMatcher:
         'max_roll': 45,
         'check_blur': True,
         'blur_threshold': 50
-      }
+      },
+      providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
     )
     
     faces = processor.process_image(image_path, return_all=True)
@@ -296,7 +305,8 @@ class FaceMatcher:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
     base_dir = os.path.dirname(image_path)
-    output_dir_name = f'{self.model_type}_{self.architecture}_match_results'
+    gallery_name = Path(self.gallery.gallery_path).stem
+    output_dir_name = f'{gallery_name}_match_results'
     output_dir = os.path.join(base_dir, output_dir_name)
     os.makedirs(output_dir, exist_ok=True)
     
@@ -503,13 +513,13 @@ def main():
   parser.add_argument(
     '--capture_dir',
     type=str,
-    default='output/camera_captures',
+    default=str(SCRIPT_DIR / 'output' / 'camera_captures'),
     help='Directory containing camera capture tracks'
   )
   parser.add_argument(
     '--gallery_path',
     type=str,
-    default='gallery/students.pkl',
+    default=str(SCRIPT_DIR / 'gallery' / 'students.pkl'),
     help='Path to student gallery database'
   )
   parser.add_argument(

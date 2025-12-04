@@ -9,15 +9,18 @@ from typing import List, Union, Optional
 import cv2
 from PIL import Image
 import net
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 ADAFACE_MODELS = {
-  'ir_50': 'pretrained/adaface_ir50_ms1mv2.ckpt',
-  'ir_101': 'pretrained/adaface_ir101_ms1mv3.ckpt',
+  'ir_50': str(SCRIPT_DIR / 'pretrained' / 'adaface_ir50_ms1mv2.ckpt'),
+  'ir_101': str(SCRIPT_DIR / 'pretrained' / 'adaface_ir101_ms1mv3.ckpt'),
 }
 
 ARCFACE_MODELS = {
-  'ir_50': 'pretrained/arcface_ir50_ms1mv3.onnx',
-  'ir_101': 'pretrained/arcface_ir101_ms1mv3.onnx',
+  'ir_50': str(SCRIPT_DIR / 'pretrained' / 'arcface_ir50_ms1mv3.onnx'),
+  'ir_101': str(SCRIPT_DIR / 'pretrained' / 'arcface_ir101_ms1mv3.onnx'),
 }
 
 class FaceEmbedder:

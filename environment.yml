@@ -1,0 +1,21 @@
+name: adaface
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - pytorch-cuda=12.1
+  - torchvision
+  - scikit-learn
+  - matplotlib
+  - pandas
+  - scikit-image
+  - pytorch-lightning
+  - flask
+  - nvidia-ml-py
+
+
+# not included opencv, psutil

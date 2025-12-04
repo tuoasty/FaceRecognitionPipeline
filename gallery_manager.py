@@ -6,6 +6,12 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 from dataclasses import dataclass, asdict
 import shutil
+from pathlib import Path
+
+def get_script_dir():
+    return Path(__file__).resolve().parent
+
+SCRIPT_DIR = get_script_dir()
 
 @dataclass
 class StudentRecord:
@@ -46,8 +52,10 @@ class StudentRecord:
 
 class GalleryManager:
     def __init__(self, 
-                 gallery_path='gallery/students.pkl',
+                 gallery_path=None,
                  aggregation_method='mean'):
+      if gallery_path is None:
+        gallery_path = str(SCRIPT_DIR / 'gallery' / 'students.pkl')
       self.gallery_path = gallery_path
       self.aggregation_method = aggregation_method
       self.students: Dict[str, StudentRecord] = {}
@@ -303,7 +311,7 @@ class GalleryManager:
 if __name__ == '__main__':
     print("Testing GalleryManager...")
 
-    gallery = GalleryManager(gallery_path='test_gallery/students.pkl')
+    gallery = GalleryManager(gallery_path=str(SCRIPT_DIR / 'test_gallery' / 'students.pkl'))
     for i in range(3):
         embeddings = np.random.randn(5, 512)
         embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -338,6 +346,6 @@ if __name__ == '__main__':
     print(f"  Avg per student: {stats['avg_embeddings_per_student']:.1f}")
 
     print("\nCreating backup...")
-    gallery.export_for_backup('test_gallery/backups')
+    gallery.export_for_backup(str(SCRIPT_DIR / 'test_gallery' / 'backups'))
     
     print("\nGalleryManager test completed successfully!")

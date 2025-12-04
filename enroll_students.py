@@ -12,6 +12,11 @@ from face_recognition import FaceProcessor
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
 
+def get_project_root():
+    current_file = Path(__file__).resolve()
+    return current_file.parent.parent
+PROJECT_ROOT = get_project_root()
+
 def augment_face_for_enrollment(face_image: np.ndarray, 
                                 num_augmentations: int = 8) -> List[np.ndarray]:
   augmented = [face_image.copy()]
@@ -44,7 +49,7 @@ def augment_face_for_enrollment(face_image: np.ndarray,
 
 class StudentEnrollment:
   def __init__(self,
-                gallery_path='gallery/students.pkl',
+                gallery_path=PROJECT_ROOT / 'gallery' / 'students.pkl',
                 min_faces_per_student=3,
                 max_faces_per_student=10,
                 limit_images=0,
@@ -71,7 +76,8 @@ class StudentEnrollment:
         'max_roll': 30,
         'check_blur': True,
         'blur_threshold': 100
-      }
+      },
+      providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
     )
 
     print("\n2. Loading AdaFace model...")
@@ -380,13 +386,13 @@ def main():
   parser.add_argument(
     '--enrollment_dir',
     type=str,
-    default='samples/enrollment',
+    default=str(PROJECT_ROOT / 'samples' / 'enrollment'),
     help='Directory containing student subdirectories'
   )
   parser.add_argument(
     '--gallery_path',
     type=str,
-    default='gallery/students.pkl',
+    default=str(PROJECT_ROOT / 'gallery' / 'students.pkl'),
     help='Path to gallery database'
   )
   parser.add_argument(
@@ -447,7 +453,7 @@ def main():
 
   if summary.get('successful', 0) > 0:
     print("\nCreating backup...")
-    backup_dir = os.path.join(os.path.dirname(args.gallery_path), 'backups')
+    backup_dir = PROJECT_ROOT / 'gallery' / 'backups'
     
     backup_name = f"{args.model_type}_{args.architecture}"
     enrollment.gallery.export_for_backup(backup_dir, backup_name=backup_name)

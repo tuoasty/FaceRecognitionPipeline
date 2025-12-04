@@ -8,6 +8,14 @@ import os
 from insightface.app import FaceAnalysis
 from insightface.utils import face_align
 
+from pathlib import Path
+
+def get_project_root():
+    current_file = Path(__file__).resolve()
+    return current_file.parent.parent
+
+PROJECT_ROOT = get_project_root()
+
 class FaceDetector:
   def __init__(self, det_size=(640, 640), det_thresh=0.5, 
                providers=None):
@@ -351,11 +359,11 @@ def process_classroom_images(input_dir: str, output_dir: str, visualize: bool = 
     print(f"Visualizations saved to: {viz_dir}")
 
 if __name__ == '__main__':
-  input_directory = 'samples/classroom'
-  output_directory = 'output/classroom_detection'
+  input_directory = PROJECT_ROOT / 'samples' / 'classroom'
+  output_directory = PROJECT_ROOT / 'output' / 'classroom_detection'
   
   process_classroom_images(
-    input_dir=input_directory,
-    output_dir=output_directory,
+    input_dir=str(input_directory),
+    output_dir=str(output_directory),
     visualize=True
   )
