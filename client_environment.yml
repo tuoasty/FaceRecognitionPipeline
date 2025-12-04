@@ -1,0 +1,28 @@
+name: adaface
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+
+  # Core deep learning stack
+  - pytorch
+  - pytorch-cuda=12.1
+  - torchvision
+
+  # Array & image processing
+  - numpy
+  - opencv
+
+  # Web requests
+  - requests
+
+  # Flask server
+  - flask
+
+  # Others
+  - psutil
+  - nvidia-ml-py

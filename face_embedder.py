@@ -27,7 +27,7 @@ class FaceEmbedder:
   def __init__(self, 
              architecture='ir_101',
              model_path=None,
-             model_type='adaface',  # NEW: 'adaface' or 'arcface'
+             model_type='adaface',
              device=None):
     if device is None:
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

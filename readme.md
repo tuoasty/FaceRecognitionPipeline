@@ -22,3 +22,5 @@ python face_recognition_server.py --gallery gallery\adaface_ir101.pkl --host 0.0
 python face_recognition_client.py --server http://10.22.78.202:5000 --session_name remote_test_1
 
 http://10.22.78.202:5000
+
+python AdaFace\inference\embedding_generator.py --dataset_root dataset --output_root output\v0 --model_type adaface --architecture ir_101
