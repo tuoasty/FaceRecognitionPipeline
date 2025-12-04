@@ -51,7 +51,7 @@ class StudentEnrollment:
   def __init__(self,
                 gallery_path=PROJECT_ROOT / 'gallery' / 'students.pkl',
                 min_faces_per_student=3,
-                max_faces_per_student=10,
+                max_faces_per_student=5,
                 limit_images=0,
                 image_indices=None,
                 model_type='adaface',
@@ -89,12 +89,32 @@ class StudentEnrollment:
     print("\n3. Loading gallery database...")
     self.gallery = GalleryManager(
         gallery_path=gallery_path,
-        aggregation_method='mean'
+        aggregation_method='weighted_mean'
     )
     
     print("\n" + "="*60)
     print("Enrollment system ready!")
     print("="*60 + "\n")
+
+  def _deduplicate_embeddings(self, embeddings: np.ndarray, 
+                            threshold: float = 0.95) -> np.ndarray:
+    if len(embeddings) <= 1:
+      return embeddings
+    
+    keep_mask = np.ones(len(embeddings), dtype=bool)
+    
+    for i in range(len(embeddings)):
+      if not keep_mask[i]:
+        continue
+      
+      sims = np.dot(embeddings[i:], embeddings[i])
+      duplicates = np.where(sims > threshold)[0]
+      if len(duplicates) > 1:
+        keep_mask[i + duplicates[1:]] = False
+  
+    filtered = embeddings[keep_mask]
+    print(f"  Deduplication: kept {len(filtered)}/{len(embeddings)} unique embeddings")
+    return filtered
     
   def process_student_directory(self, 
                                 student_dir: str,
@@ -200,6 +220,7 @@ class StudentEnrollment:
 
       print(f"  Extracting embeddings...")
       embeddings = self.embedder.extract_embeddings_batch(all_face_images, normalize=True)
+      # embeddings = self._deduplicate_embeddings(embeddings, threshold=0.95)
 
       print(f"  Extracted {len(embeddings)} embeddings (512-dim)")
 
@@ -324,6 +345,8 @@ class StudentEnrollment:
         'gallery_stats': stats
       }
   
+  
+  
   def verify_enrollment(self):
     print("\n" + "="*60)
     print("ENROLLMENT VERIFICATION")
@@ -404,7 +427,7 @@ def main():
   parser.add_argument(
     '--max_faces',
     type=int,
-    default=10,
+    default=5,
     help='Maximum faces to use per student'
   )
   parser.add_argument(

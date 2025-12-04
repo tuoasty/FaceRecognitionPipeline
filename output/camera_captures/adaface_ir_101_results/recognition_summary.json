@@ -3,15 +3,15 @@
   "recognized": 1,
   "unrecognized": 0,
   "recognition_rate": 100.0,
-  "avg_confidence": 0.7480276425679525,
+  "avg_confidence": 0.767259806394577,
   "student_appearances": {
     "KH": 1
   },
   "below_threshold_candidates": [],
   "unique_students": 1,
-  "timestamp": "2025-12-04T08:58:16.149518",
+  "timestamp": "2025-12-04T09:33:56.608572",
   "settings": {
     "similarity_threshold": 0.5,
-    "aggregation_method": "majority_vote"
+    "aggregation_method": "consensus"
   }
 }

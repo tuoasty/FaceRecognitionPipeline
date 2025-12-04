@@ -101,6 +101,26 @@ class GalleryManager:
       
       return True
     
+    def _filter_quality_embeddings(self, 
+                               embeddings: np.ndarray,
+                               min_similarity: float = 0.70) -> np.ndarray:
+        if len(embeddings) <= 2:
+            return embeddings
+        
+        similarities = np.dot(embeddings, embeddings.T)
+        np.fill_diagonal(similarities, 0)
+        avg_similarities = np.mean(similarities, axis=1)
+
+        mask = avg_similarities >= min_similarity
+        filtered = embeddings[mask]
+        
+        if len(filtered) < 2:
+            top_indices = np.argsort(avg_similarities)[-2:]
+            filtered = embeddings[top_indices]
+        
+        print(f"    Quality filter: kept {len(filtered)}/{len(embeddings)} embeddings (threshold={min_similarity})")
+        return filtered
+        
     def update_embeddings(self,
                          student_id: str,
                          new_embeddings: np.ndarray,
@@ -277,6 +297,8 @@ class GalleryManager:
     def _aggregate_embeddings(self, embeddings: np.ndarray) -> np.ndarray:
         if len(embeddings) == 1:
             return embeddings[0]
+        
+        embeddings = self._filter_quality_embeddings(embeddings)
         
         if self.aggregation_method == 'mean':
             aggregated = np.mean(embeddings, axis=0)

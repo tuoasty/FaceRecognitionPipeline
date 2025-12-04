@@ -319,75 +319,69 @@ class FaceMatcher:
     return output_path
 
   def _aggregate_matches(self, 
-                        frame_matches: List[Dict],
-                        all_scores: Dict[str, List[float]]) -> Optional[Dict]:
-    if self.aggregation_method == 'majority_vote':
-      votes = Counter([m['student_id'] for m in frame_matches])
-      most_common = votes.most_common(1)[0]
-      student_id = most_common[0]
-      vote_count = most_common[1]
-      
-      avg_score = np.mean(all_scores[student_id])
-      
-      if avg_score < self.similarity_threshold:
-        return None
+                      frame_matches: List[Dict],
+                      all_scores: Dict[str, List[float]]) -> Optional[Dict]:
+    min_quality = 0.55 
+    min_frames = 3
 
-      name = frame_matches[0]['name'] if frame_matches[0]['student_id'] == student_id else \
-              next(m['name'] for m in frame_matches if m['student_id'] == student_id)
-      
-      return {
-        'student_id': student_id,
-        'name': name,
-        'confidence': float(avg_score),
-        'votes': vote_count,
-        'total_frames': len(frame_matches)
-      }
+    quality_matches = [m for m in frame_matches if m['score'] >= min_quality]
     
-    elif self.aggregation_method == 'avg_similarity':
-      avg_scores = {sid: np.mean(scores) for sid, scores in all_scores.items()}
-      best_student = max(avg_scores.items(), key=lambda x: x[1])
-      student_id, avg_score = best_student
-      
-      if avg_score < self.similarity_threshold:
-        return None
-      
-      name = next(m['name'] for m in frame_matches if m['student_id'] == student_id)
-      
-      return {
-        'student_id': student_id,
-        'name': name,
-        'confidence': float(avg_score)
-      }
+    if len(quality_matches) < min_frames:
+      return None
+
+    votes = Counter([m['student_id'] for m in quality_matches])
+    total_votes = len(quality_matches)
+    most_common = votes.most_common(2)
     
-    elif self.aggregation_method == 'max_similarity':
-      best_match = max(frame_matches, key=lambda x: x['score'])
-      
-      if best_match['score'] < self.similarity_threshold:
-        return None
-      
-      return {
-        'student_id': best_match['student_id'],
-        'name': best_match['name'],
-        'confidence': float(best_match['score'])
-      }
+    winner_id, winner_count = most_common[0]
+    winner_ratio = winner_count / total_votes
     
-    return None
+    strong_consensus = winner_ratio > 0.5
+    
+    if not strong_consensus and len(most_common) > 1:
+      second_count = most_common[1][1]
+      strong_consensus = winner_ratio > 0.4 and winner_count >= 2 * second_count
+    
+    if not strong_consensus:
+      return None
+
+    winner_scores = [m['score'] for m in quality_matches if m['student_id'] == winner_id]
+    avg_score = np.mean(winner_scores)
+    
+    if avg_score < self.similarity_threshold:
+      return None
+    
+    name = next(m['name'] for m in quality_matches if m['student_id'] == winner_id)
+    
+    return {
+      'student_id': winner_id,
+      'name': name,
+      'confidence': float(avg_score),
+      'consensus_strength': float(winner_ratio),
+      'num_quality_frames': len(winner_scores),
+      'total_frames_evaluated': len(frame_matches)
+    }
   
   def _get_best_candidate(self, frame_matches, all_scores):
-    if self.aggregation_method == 'majority_vote':
-      votes = Counter([m['student_id'] for m in frame_matches])
-      student_id = votes.most_common(1)[0][0]
-      avg_score = np.mean(all_scores[student_id])
-    else:
-      avg_scores = {sid: np.mean(scores) for sid, scores in all_scores.items()}
-      student_id, avg_score = max(avg_scores.items(), key=lambda x: x[1])
+    min_quality = 0.55
+    quality_matches = [m for m in frame_matches if m['score'] >= min_quality]
+
+    if not quality_matches:
+      quality_matches = frame_matches
+
+    votes = Counter([m['student_id'] for m in quality_matches])
+    student_id = votes.most_common(1)[0][0]
+
+    quality_scores = [m['score'] for m in quality_matches if m['student_id'] == student_id]
+    avg_score = np.mean(quality_scores)
     
-    name = next(m['name'] for m in frame_matches if m['student_id'] == student_id)
+    name = next(m['name'] for m in quality_matches if m['student_id'] == student_id)
     
     return {
       'student_id': student_id,
       'name': name,
-      'confidence': float(avg_score)
+      'confidence': float(avg_score),
+      'num_quality_frames': len(quality_scores)
     }
   
   def process_capture_directory(self, 
@@ -531,8 +525,8 @@ def main():
   parser.add_argument(
     '--aggregation',
     type=str,
-    default='majority_vote',
-    choices=['majority_vote', 'avg_similarity', 'max_similarity'],
+    default='consensus',
+    choices=['consensus', 'majority_vote', 'avg_similarity', 'max_similarity'],  # ADD 'consensus'
     help='Method to aggregate multi-frame matches'
   )
   parser.add_argument(
