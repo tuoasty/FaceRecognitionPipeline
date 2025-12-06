@@ -18,24 +18,38 @@ from performance_monitor_server import PerformanceMonitorServer
 app = Flask(__name__)
 
 class LiveRecognitionTracker:
-  def __init__(self, recognition_interval=30, max_attempts=3, buffer_size=10):
+  def __init__(self, recognition_interval=30, max_attempts=3, buffer_size=10, retry_cooldown=10.0):
     self.recognized_tracks = {}  #track_id -> student_info
     self.recognition_attempts = {}  #track_id -> attempt_count
     self.track_frame_buffers = {}  #track_id -> deque of recent frames
     self.track_first_seen = {}  #track_id -> timestamp
     self.track_last_seen = {}  #track_id -> timestamp
+    self.track_last_attempt = {}
     
     self.recognition_interval = recognition_interval
     self.max_attempts = max_attempts
     self.buffer_size = buffer_size
+    self.retry_cooldown = retry_cooldown
         
   def should_recognize(self, track_id: int, frame_count: int) -> bool:
     if track_id in self.recognized_tracks:
       return False
 
     attempts = self.recognition_attempts.get(track_id, 0)
+
     if attempts >= self.max_attempts:
-      return False
+      if track_id in self.track_last_attempt:
+        last_attempt = datetime.fromisoformat(self.track_last_attempt[track_id])
+        time_since_attempt = (datetime.now() - last_attempt).total_seconds()
+        if time_since_attempt >= self.retry_cooldown:
+          print(f"  Track {track_id}: Cooldown expired, resetting attempts")
+          self.recognition_attempts[track_id] = 0
+          if track_id in self.track_frame_buffers:
+            self.track_frame_buffers[track_id].clear()
+        else:
+            return False
+      else:
+        return False
   
     if track_id in self.track_frame_buffers:
       if len(self.track_frame_buffers[track_id]) >= 5: 
@@ -73,6 +87,7 @@ class LiveRecognitionTracker:
   
   def increment_attempts(self, track_id: int):
     self.recognition_attempts[track_id] = self.recognition_attempts.get(track_id, 0) + 1
+    self.track_last_attempt[track_id] = datetime.now().isoformat()
   
   def get_track_duration(self, track_id: int) -> float:
     if track_id not in self.track_first_seen or track_id not in self.track_last_seen:
@@ -81,7 +96,6 @@ class LiveRecognitionTracker:
     first = datetime.fromisoformat(self.track_first_seen[track_id])
     last = datetime.fromisoformat(self.track_last_seen[track_id])
     return (last - first).total_seconds()
-  
 
 class FaceRecognitionServer:
   def __init__(self,

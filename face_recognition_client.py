@@ -109,6 +109,7 @@ class FaceRecognitionClient:
     
     self.recognized_tracks = {}
     self.recognition_attempts = {}
+    self.failed_recognition_attempts = {}
     self.running = True
     signal.signal(signal.SIGINT, self._signal_handler)
     signal.signal(signal.SIGTERM, self._signal_handler)
@@ -159,6 +160,12 @@ class FaceRecognitionClient:
       tid: {'x': data['x'], 'y': data['y'], 'face': data['face']}
       for tid, data in new_assignments.items()
     }
+    self.failed_recognition_tracks = {
+      tid: cooldown_end 
+      for tid, cooldown_end in self.failed_recognition_tracks.items()
+      if tid in self.active_tracks
+    }
+
     return new_assignments
   
   def _encode_image_base64(self, image: np.ndarray) -> str:
@@ -210,7 +217,16 @@ class FaceRecognitionClient:
     tracked_faces = self._simple_track_assignment(faces)
 
     faces_to_send = []
+    current_time = time.time()
+
     for track_id, track_data in tracked_faces.items():
+      if track_id in self.failed_recognition_tracks:
+        cooldown_end = self.failed_recognition_tracks[track_id]
+        if current_time < cooldown_end:
+          continue
+        else:
+          del self.failed_recognition_tracks[track_id]
+      
       face = track_data['face']
       face_data = self._prepare_face_data(face, track_id)
       faces_to_send.append(face_data)
@@ -243,6 +259,10 @@ class FaceRecognitionClient:
 
           self.recognized_tracks = server_result.get('recognized_tracks', {})
           self.recognition_attempts = server_result.get('recognition_attempts', {})
+          for track_id_str, attempts in self.recognition_attempts.items():
+            track_id = int(track_id_str)
+            if attempts >= 3 and track_id_str not in self.recognized_tracks:
+              self.failed_recognition_tracks[track_id] = time.time() + 10.0
         else:
           print(f"Server error: {response.status_code}")
       except Exception as e:
