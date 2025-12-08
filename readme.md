@@ -3,7 +3,7 @@ In /RIG root directory
 python AdaFace\inference\dataset_preprocessor.py --input_dir dataset\classroom
 To process all images and detect faces
 
-python AdaFace\inference\segment_dataset.py
+python AdaFace\inference\segment_dataset.py --input_dir output\v1\probe_labeled\positive --metadata_file output\v1\probe_labeled\probe_positive_metadata.json --output_dir output\v1\probe_labeled\segmented
 to segment dataset based on criteria
 
 To generate gallery
