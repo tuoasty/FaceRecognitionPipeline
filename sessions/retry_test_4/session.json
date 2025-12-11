@@ -1,0 +1,19 @@
+{
+  "session_id": "retry_test_4",
+  "start_time": "2025-12-10T15:19:36.118879",
+  "end_time": "2025-12-10T15:20:04.772021",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.4,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 283,
+    "total_faces_detected": 261,
+    "total_recognition_attempts": 5,
+    "unique_students_recognized": 1,
+    "unrecognized_tracks": 1
+  },
+  "duration_seconds": 28.653142
+}

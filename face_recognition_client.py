@@ -106,10 +106,9 @@ class FaceRecognitionClient:
     self.active_tracks = {}
     self.next_track_id = 0
     self.max_tracking_distance = max_tracking_distance
-    
     self.recognized_tracks = {}
     self.recognition_attempts = {}
-    self.failed_recognition_attempts = {}
+    self.failed_tracks = {}
     self.running = True
     signal.signal(signal.SIGINT, self._signal_handler)
     signal.signal(signal.SIGTERM, self._signal_handler)
@@ -159,11 +158,6 @@ class FaceRecognitionClient:
     self.active_tracks = {
       tid: {'x': data['x'], 'y': data['y'], 'face': data['face']}
       for tid, data in new_assignments.items()
-    }
-    self.failed_recognition_tracks = {
-      tid: cooldown_end 
-      for tid, cooldown_end in self.failed_recognition_tracks.items()
-      if tid in self.active_tracks
     }
 
     return new_assignments
@@ -220,16 +214,9 @@ class FaceRecognitionClient:
     current_time = time.time()
 
     for track_id, track_data in tracked_faces.items():
-      if track_id in self.failed_recognition_tracks:
-        cooldown_end = self.failed_recognition_tracks[track_id]
-        if current_time < cooldown_end:
-          continue
-        else:
-          del self.failed_recognition_tracks[track_id]
-      
-      face = track_data['face']
-      face_data = self._prepare_face_data(face, track_id)
-      faces_to_send.append(face_data)
+        face = track_data['face']
+        face_data = self._prepare_face_data(face, track_id)
+        faces_to_send.append(face_data)
 
     result = {'faces_detected': len(faces), 'active_tracks': len(tracked_faces)}
     network_request_sent = False
@@ -259,10 +246,7 @@ class FaceRecognitionClient:
 
           self.recognized_tracks = server_result.get('recognized_tracks', {})
           self.recognition_attempts = server_result.get('recognition_attempts', {})
-          for track_id_str, attempts in self.recognition_attempts.items():
-            track_id = int(track_id_str)
-            if attempts >= 3 and track_id_str not in self.recognized_tracks:
-              self.failed_recognition_tracks[track_id] = time.time() + 10.0
+          self.failed_tracks = server_result.get('failed_tracks', {})
         else:
           print(f"Server error: {response.status_code}")
       except Exception as e:
@@ -410,6 +394,9 @@ class FaceRecognitionClient:
         student_info = self.recognized_tracks[str(track_id)]
         color = (0, 255, 0)
         label = f"{student_info['name']} ({student_info['confidence']:.2f})"
+      elif str(track_id) in self.failed_tracks:
+        color = (0, 0, 255)  # Red - ADD THIS BLOCK
+        label = "Unrecognized"
       elif str(track_id) in self.recognition_attempts:
         attempts = self.recognition_attempts[str(track_id)]
         color = (0, 255, 255)

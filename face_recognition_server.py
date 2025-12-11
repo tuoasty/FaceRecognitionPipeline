@@ -8,6 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from collections import deque
 import torch
+import time
 from flask import Flask, request, jsonify
 import base64
 
@@ -25,7 +26,9 @@ class LiveRecognitionTracker:
     self.track_first_seen = {}  #track_id -> timestamp
     self.track_last_seen = {}  #track_id -> timestamp
     self.track_last_attempt = {}
-    
+    self.client_tracks = {}  # track_id -> {'bbox': [x1,y1,x2,y2], 'last_seen': timestamp}
+    self.track_cooldowns = {}
+        
     self.recognition_interval = recognition_interval
     self.max_attempts = max_attempts
     self.buffer_size = buffer_size
@@ -33,27 +36,21 @@ class LiveRecognitionTracker:
         
   def should_recognize(self, track_id: int, frame_count: int) -> bool:
     if track_id in self.recognized_tracks:
-      return False
+        return False
+    
+    # Check cooldown first
+    if self.is_track_in_cooldown(track_id):
+        return False
 
     attempts = self.recognition_attempts.get(track_id, 0)
 
     if attempts >= self.max_attempts:
-      if track_id in self.track_last_attempt:
-        last_attempt = datetime.fromisoformat(self.track_last_attempt[track_id])
-        time_since_attempt = (datetime.now() - last_attempt).total_seconds()
-        if time_since_attempt >= self.retry_cooldown:
-          print(f"  Track {track_id}: Cooldown expired, resetting attempts")
-          self.recognition_attempts[track_id] = 0
-          if track_id in self.track_frame_buffers:
-            self.track_frame_buffers[track_id].clear()
-        else:
-            return False
-      else:
+        self.set_track_cooldown(track_id, self.retry_cooldown)
         return False
-  
+    
     if track_id in self.track_frame_buffers:
-      if len(self.track_frame_buffers[track_id]) >= 5: 
-        return True
+        if len(self.track_frame_buffers[track_id]) >= 5: 
+            return True
     
     return False
   
@@ -96,6 +93,30 @@ class LiveRecognitionTracker:
     first = datetime.fromisoformat(self.track_first_seen[track_id])
     last = datetime.fromisoformat(self.track_last_seen[track_id])
     return (last - first).total_seconds()
+  
+  def update_client_track(self, track_id: int, bbox: List[float], timestamp: str):
+    """Update track position from client"""
+    self.client_tracks[track_id] = {
+        'bbox': bbox,
+        'last_seen': timestamp
+    }
+    
+  def is_track_in_cooldown(self, track_id: int) -> bool:
+      if track_id in self.track_cooldowns:
+          if time.time() < self.track_cooldowns[track_id]:
+              return True
+          else:
+              # Cooldown expired - reset
+              del self.track_cooldowns[track_id]
+              self.recognition_attempts[track_id] = 0
+              if track_id in self.track_frame_buffers:
+                  self.track_frame_buffers[track_id].clear()
+              return False
+      return False
+
+  def set_track_cooldown(self, track_id: int, cooldown_seconds: float = 3.0):
+      """Set cooldown for failed track"""
+      self.track_cooldowns[track_id] = time.time() + cooldown_seconds
 
 class FaceRecognitionServer:
   def __init__(self,
@@ -299,6 +320,11 @@ class FaceRecognitionServer:
 
     self.frame_count = frame_count
     timestamp = datetime.now().isoformat()
+
+    for face_data in faces_data:
+      track_id = face_data['track_id']
+      bbox = face_data['bbox']
+      self.tracker.update_client_track(track_id, bbox, timestamp)
     
     self.total_faces_detected += len(faces_data)
     
@@ -376,12 +402,16 @@ class FaceRecognitionServer:
       perf_metrics = {}
     
     return {
-      'frame_count': self.frame_count,
-      'faces_processed': len(faces_data),
-      'recognition_events': len(recognition_events),
-      'recognized_tracks': {int(k): v for k, v in self.tracker.recognized_tracks.items()},
-      'recognition_attempts': {int(k): v for k, v in self.tracker.recognition_attempts.items()},
-      'performance': perf_metrics
+        'frame_count': self.frame_count,
+        'faces_processed': len(faces_data),
+        'recognition_events': len(recognition_events),
+        'recognized_tracks': {str(k): v for k, v in self.tracker.recognized_tracks.items()},
+        'recognition_attempts': {str(k): v for k, v in self.tracker.recognition_attempts.items()},
+        'failed_tracks': {str(k): True for k in self.tracker.recognition_attempts.keys() 
+                        if self.tracker.recognition_attempts[k] >= self.max_recognition_attempts 
+                        and k not in self.tracker.recognized_tracks},
+        'tracks_in_cooldown': {str(k): True for k in self.tracker.track_cooldowns.keys()},
+        'performance': perf_metrics
     }
   
   def _save_face_image(self, 
@@ -581,6 +611,7 @@ def init_session():
     'session_dir': server.session_dir
   })
 
+
 def main():
   parser = argparse.ArgumentParser(
     description='Face Recognition Server for classroom attendance'
@@ -594,7 +625,7 @@ def main():
   parser.add_argument(
     '--threshold',
     type=float,
-    default=0.5,
+    default=0.4,
     help='Similarity threshold for recognition (0-1)'
   )
   parser.add_argument(

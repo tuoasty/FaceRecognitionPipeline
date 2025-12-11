@@ -1,0 +1,52 @@
+{
+  "session_id": "retry_test_4",
+  "last_updated": "2025-12-10T15:19:57.527012",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-10T15:19:42.646821",
+      "confidence": 0.7296632528305054,
+      "track_id": "track_0000",
+      "duration_seconds": 0.432968,
+      "detection_quality": {
+        "det_score": 0.8454397320747375,
+        "blur_score": 1512.1637336321048
+      },
+      "saved_face_path": "sessions\\retry_test_4\\recognized_faces\\STU0010_KH\\track_0000_20251210_151943_594454_conf0.716_aligned.jpg"
+    }
+  ],
+  "unrecognized": [
+    {
+      "track_id": "track_0003",
+      "first_seen": "2025-12-10T15:19:46.246484",
+      "duration_seconds": 0.605347,
+      "best_match": {
+        "name": "MM",
+        "student_id": "STU0011",
+        "confidence": 0.08135330677032471
+      },
+      "reason": "below_threshold",
+      "threshold": 0.4,
+      "attempts": 3,
+      "top_matches": [
+        {
+          "student_id": "STU0011",
+          "name": "MM",
+          "score": 0.08135330677032471
+        },
+        {
+          "student_id": "STU0014",
+          "name": "NS",
+          "score": 0.06614244729280472
+        },
+        {
+          "student_id": "STU0013",
+          "name": "MV",
+          "score": 0.05799531936645508
+        }
+      ],
+      "saved_face_path": "sessions\\retry_test_4\\unrecognized_faces\\track_0003_20251210_151946_926829_conf0.081_aligned.jpg"
+    }
+  ]
+}

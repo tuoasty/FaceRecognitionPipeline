@@ -1,0 +1,118 @@
+{
+  "session_info": {
+    "session_name": "retry_test_1",
+    "start_time": "2025-12-10T15:06:04.247733",
+    "end_time": "2025-12-10T15:06:51.434244",
+    "duration_seconds": 47.186511,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 418,
+    "total_faces_detected": 662,
+    "total_network_requests": 271,
+    "avg_faces_per_frame": 1.5837320574162679
+  },
+  "fps_metrics": {
+    "average_fps": 8.858463809710363,
+    "current_fps": 9.630769202508871,
+    "fps_history": [
+      {
+        "timestamp": 1765353977.7712095,
+        "fps": 2.2183645871996243,
+        "frame_number": 30
+      },
+      {
+        "timestamp": 1765353980.755443,
+        "fps": 10.052832265287334,
+        "frame_number": 60
+      },
+      {
+        "timestamp": 1765353982.5655468,
+        "fps": 16.573636498345326,
+        "frame_number": 90
+      },
+      {
+        "timestamp": 1765353984.4616451,
+        "fps": 15.821963876178152,
+        "frame_number": 120
+      },
+      {
+        "timestamp": 1765353986.0824795,
+        "fps": 18.508985812865387,
+        "frame_number": 150
+      },
+      {
+        "timestamp": 1765353988.6956642,
+        "fps": 11.480244817499509,
+        "frame_number": 180
+      },
+      {
+        "timestamp": 1765353990.938558,
+        "fps": 13.375576767981816,
+        "frame_number": 210
+      },
+      {
+        "timestamp": 1765353993.3021066,
+        "fps": 12.692779429463494,
+        "frame_number": 240
+      },
+      {
+        "timestamp": 1765353996.2201338,
+        "fps": 10.280918692259304,
+        "frame_number": 270
+      },
+      {
+        "timestamp": 1765353999.1378505,
+        "fps": 10.282012497190056,
+        "frame_number": 300
+      },
+      {
+        "timestamp": 1765354001.580079,
+        "fps": 12.283862593546372,
+        "frame_number": 330
+      },
+      {
+        "timestamp": 1765354004.9508972,
+        "fps": 8.899916510093622,
+        "frame_number": 360
+      },
+      {
+        "timestamp": 1765354008.0659132,
+        "fps": 9.630769202508871,
+        "frame_number": 390
+      }
+    ]
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 0.6331270007649437,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 66.94695200130809,
+      "max_ms": 99.61350000230595,
+      "min_ms": 38.77630000351928,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 20.851847999729216,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 89.41096799913794,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 426.73046875,
+      "peak_mb": 1319.51171875,
+      "delta_mb": 892.78125,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203
+  }
+}

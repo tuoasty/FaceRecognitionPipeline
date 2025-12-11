@@ -19,8 +19,10 @@ In /inference directory
 python face_recognition_live.py --session_name test_logging1
 
 python face_recognition_server.py --gallery gallery\adaface_ir101.pkl --host 0.0.0.0 --port 5000
-python face_recognition_client.py --server http://10.22.78.202:5000 --session_name remote_test_1
+python face_recognition_client.py --server http://10.22.78.202:5000 --session_name deployment_test_1
+python face_recognition_client.py --server http://10.22.224.73:5000 --session_name docker_test_1
+python face_recognition_client.py --server http://127.0.0.1:5000 --session_name retry_test_2
 
 http://10.22.78.202:5000
 
-python AdaFace\inference\embedding_generator.py --dataset_root dataset --output_root output\v0 --model_type adaface --architecture ir_101
+python AdaFace\inference\embedding_generator.py --dataset_root dataset --output_root output\v1 --model_type adaface --architecture ir_101

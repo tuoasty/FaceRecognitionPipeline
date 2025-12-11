@@ -1,0 +1,55 @@
+{
+  "session_info": {
+    "session_name": "retry_test_4",
+    "model_identifier": "ADAFACE_IR_101_GPU",
+    "start_time": "2025-12-10T15:19:36.101877",
+    "end_time": "2025-12-10T15:20:04.772021",
+    "duration_seconds": 28.670144,
+    "component": "server"
+  },
+  "request_statistics": {
+    "total_requests_processed": 261,
+    "total_faces_processed": 261,
+    "total_faces_recognized": 2,
+    "total_faces_unknown": 1,
+    "avg_faces_per_request": 1.0,
+    "recognition_rate": 0.007662835249042145,
+    "requests_per_second": 9.103546881382947
+  },
+  "latency_metrics": {
+    "recognition": {
+      "average_ms": 0.7383299997309223,
+      "max_ms": 72.89730000775307,
+      "min_ms": 0.0053000112529844046,
+      "unit": "milliseconds"
+    },
+    "network_overhead": {
+      "average_ms": 0.16392400197219104,
+      "unit": "milliseconds"
+    },
+    "end_to_end_server": {
+      "average_ms": 0.9022540017031133,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 899.16015625,
+      "peak_mb": 1146.12109375,
+      "delta_mb": 246.9609375,
+      "unit": "megabytes"
+    },
+    "gpu_vram": {
+      "baseline_mb": 961.44921875,
+      "peak_mb": 0.0,
+      "delta_mb": -961.44921875,
+      "unit": "megabytes",
+      "available": true
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203,
+    "gpu_available": true
+  }
+}

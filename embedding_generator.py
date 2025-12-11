@@ -223,7 +223,7 @@ class EmbeddingGenerator:
     
     if segmented:
       probe_dir = self.output_root / 'probe_labeled' / 'segmented'
-      categories = ['baseline', 'blur_blurry', 'blur_sharp', 'face_large', 
+      categories = ['high_quality', 'blur_blurry', 'blur_sharp', 'face_large', 
                     'face_medium', 'face_small', 'pose_easy', 'pose_medium', 'pose_hard', 'low_quality']
     else:
       probe_dir = self.output_root / 'probe_labeled' / 'positive'

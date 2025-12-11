@@ -1,0 +1,88 @@
+{
+  "session_info": {
+    "session_name": "retry_test_3",
+    "start_time": "2025-12-10T15:11:40.041324",
+    "end_time": "2025-12-10T15:12:09.205997",
+    "duration_seconds": 29.164673,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 237,
+    "total_faces_detected": 405,
+    "total_network_requests": 237,
+    "avg_faces_per_frame": 1.7088607594936709
+  },
+  "fps_metrics": {
+    "average_fps": 8.126269751078642,
+    "current_fps": 11.654549080277091,
+    "fps_history": [
+      {
+        "timestamp": 1765354309.4646792,
+        "fps": 3.183579567211811,
+        "frame_number": 30
+      },
+      {
+        "timestamp": 1765354312.0689862,
+        "fps": 11.519379525608437,
+        "frame_number": 60
+      },
+      {
+        "timestamp": 1765354315.0969095,
+        "fps": 9.907780540063248,
+        "frame_number": 90
+      },
+      {
+        "timestamp": 1765354317.9078536,
+        "fps": 10.672570902312257,
+        "frame_number": 120
+      },
+      {
+        "timestamp": 1765354320.929049,
+        "fps": 9.929844287462599,
+        "frame_number": 150
+      },
+      {
+        "timestamp": 1765354323.8583677,
+        "fps": 10.241289328986975,
+        "frame_number": 180
+      },
+      {
+        "timestamp": 1765354326.4324698,
+        "fps": 11.654549080277091,
+        "frame_number": 210
+      }
+    ]
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 0.6652240015682764,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 56.39174199983245,
+      "max_ms": 104.57870000391267,
+      "min_ms": 37.57499999483116,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 18.10475099948235,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 75.80917699815473,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 426.9609375,
+      "peak_mb": 1321.30859375,
+      "delta_mb": 894.34765625,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203
+  }
+}
