@@ -1,0 +1,78 @@
+{
+  "session_info": {
+    "session_name": "TESTTT1",
+    "start_time": "2025-12-11T17:05:59.794585",
+    "end_time": "2025-12-11T17:06:23.293433",
+    "duration_seconds": 23.498848,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 170,
+    "total_faces_detected": 287,
+    "total_network_requests": 160,
+    "avg_faces_per_frame": 1.688235294117647
+  },
+  "fps_metrics": {
+    "average_fps": 7.23439719257727,
+    "current_fps": 11.406847746390723,
+    "fps_history": [
+      {
+        "timestamp": 1765447570.2264414,
+        "fps": 2.8758065250433464,
+        "frame_number": 30
+      },
+      {
+        "timestamp": 1765447573.091969,
+        "fps": 10.469276124741594,
+        "frame_number": 60
+      },
+      {
+        "timestamp": 1765447575.8840086,
+        "fps": 10.744833149071065,
+        "frame_number": 90
+      },
+      {
+        "timestamp": 1765447578.0516791,
+        "fps": 13.839741861656828,
+        "frame_number": 120
+      },
+      {
+        "timestamp": 1765447580.6816783,
+        "fps": 11.406847746390723,
+        "frame_number": 150
+      }
+    ]
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 0.5987030000324012,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 47.145783999731066,
+      "max_ms": 74.80299999951967,
+      "min_ms": 18.043000000034226,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 22.69194399978005,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 69.2184790000465,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 426.921875,
+      "peak_mb": 1320.69921875,
+      "delta_mb": 893.77734375,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203
+  }
+}

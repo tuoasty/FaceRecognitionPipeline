@@ -11,6 +11,7 @@ import torch
 import time
 from flask import Flask, request, jsonify
 import base64
+import traceback
 
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
@@ -563,53 +564,94 @@ def health():
 def process_faces():
   if server.session_name is None:
     return jsonify({'error': 'No active session. Call /init_session first'}), 400
-    
-  data = request.json
-  faces_data = data.get('faces', [])
-  frame_count = data.get('frame_count', 0)
   
-  result = server.process_faces(faces_data, frame_count)
-  return jsonify(result)
+  try:
+    data = request.json
+    faces_data = data.get('faces', [])
+    frame_count = data.get('frame_count', 0)
+    
+    result = server.process_faces(faces_data, frame_count)
+    return jsonify(result)
+  except Exception as e:
+    import traceback
+    error_details = {
+      'error': str(e),
+      'error_type': type(e).__name__,
+      'traceback': traceback.format_exc()
+    }
+    print(f"\n[ERROR] process_faces failed: {error_details['traceback']}")
+    return jsonify(error_details), 500
 
 @app.route('/save_snapshot', methods=['POST'])
 def save_snapshot():
   if server.session_name is None:
     return jsonify({'error': 'No active session. Call /init_session first'}), 400
-  data = request.json
-  snapshot_base64 = data.get('snapshot')
-  frame_count = data.get('frame_count', 0)
-  timestamp = data.get('timestamp', datetime.now().strftime('%Y%m%d_%H%M%S'))
   
-  filepath = server.save_snapshot(snapshot_base64, frame_count, timestamp)
-  return jsonify({'saved': True, 'path': filepath})
-
+  try:
+    data = request.json
+    snapshot_base64 = data.get('snapshot')
+    frame_count = data.get('frame_count', 0)
+    timestamp = data.get('timestamp', datetime.now().strftime('%Y%m%d_%H%M%S'))
+    
+    filepath = server.save_snapshot(snapshot_base64, frame_count, timestamp)
+    return jsonify({'saved': True, 'path': filepath})
+  except Exception as e:
+    import traceback
+    error_details = {
+      'error': str(e),
+      'error_type': type(e).__name__,
+      'traceback': traceback.format_exc()
+    }
+    print(f"\n[ERROR] save_snapshot failed: {error_details['traceback']}")
+    return jsonify(error_details), 500
+  
 @app.route('/finalize', methods=['POST'])
 def finalize():
   if server.session_name is None:
     return jsonify({'error': 'No active session'}), 400
   
-  # Get client performance report if provided
-  data = request.json or {}
-  client_report = data.get('client_performance_report')
-  
-  server.finalize_session(client_report=client_report)
-  return jsonify({'status': 'finalized'})
+  try:
+    # Get client performance report if provided
+    data = request.json or {}
+    client_report = data.get('client_performance_report')
+    
+    server.finalize_session(client_report=client_report)
+    return jsonify({'status': 'finalized'})
+  except Exception as e:
+    import traceback
+    error_details = {
+      'error': str(e),
+      'error_type': type(e).__name__,
+      'traceback': traceback.format_exc()
+    }
+    print(f"\n[ERROR] finalize failed: {error_details['traceback']}")
+    return jsonify(error_details), 500
 
 @app.route('/init_session', methods=['POST'])
 def init_session():
-  data = request.json
-  session_name = data.get('session_name')
-  
-  if not session_name:
-    return jsonify({'error': 'session_name is required'}), 400
+  try:
+    data = request.json
+    session_name = data.get('session_name')
+    
+    if not session_name:
+      return jsonify({'error': 'session_name is required'}), 400
 
-  server._create_session(session_name)
-  
-  return jsonify({
-    'status': 'session_initialized', 
-    'session_name': session_name,
-    'session_dir': server.session_dir
-  })
+    server._create_session(session_name)
+    
+    return jsonify({
+      'status': 'session_initialized', 
+      'session_name': session_name,
+      'session_dir': server.session_dir
+    })
+  except Exception as e:
+    import traceback
+    error_details = {
+      'error': str(e),
+      'error_type': type(e).__name__,
+      'traceback': traceback.format_exc()
+    }
+    print(f"\n[ERROR] init_session failed: {error_details['traceback']}")
+    return jsonify(error_details), 500
 
 
 def main():
