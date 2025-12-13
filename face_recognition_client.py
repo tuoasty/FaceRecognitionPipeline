@@ -23,7 +23,8 @@ class FaceRecognitionClient:
               snapshot_interval=5.0,
               max_tracking_distance=100,
               session_name=None,
-              enable_performance_monitoring=True):
+              enable_performance_monitoring=True,
+              batch_size=5):
     
     print("\n" + "="*70)
     print("INITIALIZING FACE RECOGNITION CLIENT")
@@ -116,6 +117,10 @@ class FaceRecognitionClient:
     self.running = True
     signal.signal(signal.SIGINT, self._signal_handler)
     signal.signal(signal.SIGTERM, self._signal_handler)
+
+    self.batch_size = batch_size
+    self.pending_faces = []
+    self.frames_since_last_send = 0
     
     print("\n" + "="*70)
     print("Client ready!")
@@ -322,37 +327,49 @@ class FaceRecognitionClient:
     network_request_sent = False
     
     if faces_to_send:
-      if self.perf_monitor:
-        self.perf_monitor.mark_network_start(timings)
+      # Accumulate faces
+      self.pending_faces.extend(faces_to_send)
+      self.frames_since_last_send += 1
       
-      try:
-        response = requests.post(
-          f'{self.server_url}/process_faces',
-          json={
-            'faces': faces_to_send,
-            'frame_count': self.frame_count
-          },
-          timeout=5
-        )
-        
+      # Only send when we have enough frames OR every N frames
+      if len(self.pending_faces) >= self.batch_size or self.frames_since_last_send >= 10:
         if self.perf_monitor:
-          self.perf_monitor.mark_network_end(timings)
+          self.perf_monitor.mark_network_start(timings)
         
-        network_request_sent = True
-        
-        if response.status_code == 200:
-          server_result = response.json()
-          result.update(server_result)
-
-          self.recognized_tracks = server_result.get('recognized_tracks', {})
-          self.recognition_attempts = server_result.get('recognition_attempts', {})
-          self.failed_tracks = server_result.get('failed_tracks', {})
-          self._log_recognition_updates(server_result)
-        else:
-          print(f"Server error: {response.status_code}")
-      except Exception as e:
-        print(f"Error sending to server: {e}")
+        try:
+          response = requests.post(
+            f'{self.server_url}/process_faces',
+            json={'faces': self.pending_faces, 'frame_count': self.frame_count},
+            timeout=5
+          )
+          
+          if self.perf_monitor:
+            self.perf_monitor.mark_network_end(timings)
+          
+          network_request_sent = True
+          
+          if response.status_code == 200:
+            server_result = response.json()
+            result.update(server_result)
+            
+            self.recognized_tracks = server_result.get('recognized_tracks', {})
+            self.recognition_attempts = server_result.get('recognition_attempts', {})
+            self.failed_tracks = server_result.get('failed_tracks', {})
+            self._log_recognition_updates(server_result)
+          else:
+            print(f"Server error: {response.status_code}")
+        except Exception as e:
+          print(f"Error sending to server: {e}")
+          if self.perf_monitor:
+            self.perf_monitor.mark_network_end(timings)
+        finally:
+          # Clear batch after sending
+          self.pending_faces = []
+          self.frames_since_last_send = 0
+      else:
+        # Not sending this frame
         if self.perf_monitor:
+          self.perf_monitor.mark_network_start(timings)
           self.perf_monitor.mark_network_end(timings)
     
     if self.perf_monitor:
@@ -466,8 +483,9 @@ class FaceRecognitionClient:
             self.last_snapshot_time = current_time
         
         if display:
-          display_frame = self._draw_display(frame, result, current_fps)
-          cv2.imshow('Face Recognition Client', display_frame)
+          if self.frame_count % 2 == 0:
+              display_frame = self._draw_display(frame, result, current_fps)
+              cv2.imshow('Face Recognition Client', display_frame)
           key = cv2.waitKey(1) & 0xFF
           
           if key == ord('q'):
@@ -611,6 +629,13 @@ def main():
     default=True,
     help='Enable performance monitoring (default: True)'
   )
+  parser.add_argument(
+    '--batch_size',
+    type=int,
+    default=5,
+    help='Number of faces to accumulate before sending to server (default: 5)'
+  )
+
       
   args = parser.parse_args()
   
@@ -632,7 +657,8 @@ def main():
     auto_snapshot=auto_snapshot,
     snapshot_interval=args.snapshot_interval,
     session_name=args.session_name,
-    enable_performance_monitoring=args.enable_perf_monitor
+    enable_performance_monitoring=args.enable_perf_monitor,
+    batch_size=args.batch_size
   )
   
   client.run(
