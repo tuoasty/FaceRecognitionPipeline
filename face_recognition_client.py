@@ -98,6 +98,10 @@ class FaceRecognitionClient:
       providers=providers
     )
     
+    self.original_frame_rgb = None
+    self.high_quality_crop_size = 600
+    
+    
     self.auto_snapshot = auto_snapshot
     self.snapshot_interval = snapshot_interval
     self.last_snapshot_time = None
@@ -162,10 +166,83 @@ class FaceRecognitionClient:
 
     return new_assignments
   
-  def _encode_image_base64(self, image: np.ndarray) -> str:
+  def _encode_image_base64(self, image: np.ndarray, quality=95) -> str:
+    """Encode image with high quality JPEG"""
     image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    _, buffer = cv2.imencode('.jpg', image_bgr)
+    encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
+    _, buffer = cv2.imencode('.jpg', image_bgr, encode_params)
     return base64.b64encode(buffer).decode('utf-8')
+  
+  def _get_camera_name(self, cap: cv2.VideoCapture, camera_index: int) -> str:
+    """Get the camera device name"""
+    try:
+        # Try to get the camera description from OpenCV
+        backend = cap.getBackendName()
+        
+        # Try CAP_PROP_DESCRIPTION (available in newer OpenCV versions)
+        try:
+            desc = cap.get(cv2.CAP_PROP_DESCRIPTION)
+            if desc:
+                return f"{desc}"
+        except:
+            pass
+            
+        return f"Camera {camera_index} ({backend})"
+    except Exception as e:
+        return f"Camera {camera_index}"
+    
+  def _get_max_camera_resolution(self, cap: cv2.VideoCapture) -> tuple:
+    """Get the maximum supported resolution from the camera"""
+    # Common resolutions to test (from highest to lowest)
+    test_resolutions = [
+        (3840, 2160),  # 4K
+        (2560, 1440),  # 2K
+        (1920, 1080),  # Full HD
+        (1280, 720),   # HD
+        (640, 480),    # VGA
+    ]
+    
+    # Store original resolution
+    original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    max_width, max_height = original_width, original_height
+    
+    for width, height in test_resolutions:
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        
+        actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        if actual_width == width and actual_height == height:
+            max_width, max_height = width, height
+            print(f"  Supported: {width}x{height} ✓")
+            break
+        else:
+            print(f"  Not supported: {width}x{height} (got {actual_width}x{actual_height})")
+    
+    return max_width, max_height
+  
+  def _log_recognition_updates(self, result: Dict):
+    """Log recognition updates in real-time"""
+    # Log newly recognized students
+    if 'newly_recognized' in result:
+        for track_id, student_info in result['newly_recognized'].items():
+            print(f"[RECOGNIZED] Track {track_id}: {student_info['name']} "
+                  f"(confidence: {student_info['confidence']:.3f})")
+    
+    # Log closest matches for tracks being processed
+    if 'closest_matches' in result:
+        for track_id, match_info in result['closest_matches'].items():
+            if match_info:
+                print(f"[CLOSEST MATCH] Track {track_id}: {match_info['name']} "
+                      f"(distance: {match_info['distance']:.3f})")
+    
+    # Log failed recognitions
+    if 'newly_failed' in result:
+        for track_id in result['newly_failed']:
+            print(f"[FAILED] Track {track_id}: No match found after 3 attempts")
   
   def _prepare_face_data(self, face: Dict, track_id: int) -> Dict:
     quality_metrics = face.get('quality_metrics', {})
@@ -179,12 +256,12 @@ class FaceRecognitionClient:
       'bbox': [float(x) for x in face['bbox']],
       'det_score': float(face['det_score']),
       'quality_metrics': quality_metrics_clean,
-      'aligned_face_base64': self._encode_image_base64(face['aligned_face']),
+      'aligned_face_base64': self._encode_image_base64(face['aligned_face'], quality=95),
       'timestamp': datetime.now().isoformat()
     }
 
     if 'original_crop' in face and face['original_crop'].size > 0:
-      face_data['original_crop_base64'] = self._encode_image_base64(face['original_crop'])
+      face_data['original_crop_base64'] = self._encode_image_base64(face['original_crop'], quality=98)
     
     return face_data
   
@@ -195,6 +272,7 @@ class FaceRecognitionClient:
       timings = self.perf_monitor.start_frame()
 
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    self.original_frame_rgb = frame_rgb.copy()
     
     if self.perf_monitor:
       self.perf_monitor.mark_capture_end(timings)
@@ -206,8 +284,30 @@ class FaceRecognitionClient:
     
     for face in faces:
       x1, y1, x2, y2 = map(int, face['bbox'])
-      face['original_crop'] = frame_rgb[y1:y2, x1:x2].copy()
-    
+      
+      # Calculate expanded crop region for better context
+      face_width = x2 - x1
+      face_height = y2 - y1
+      margin = int(max(face_width, face_height) * 0.3)  # 30% margin
+      
+      # Expand bounding box with margin
+      crop_x1 = max(0, x1 - margin)
+      crop_y1 = max(0, y1 - margin)
+      crop_x2 = min(self.original_frame_rgb.shape[1], x2 + margin)
+      crop_y2 = min(self.original_frame_rgb.shape[0], y2 + margin)
+      
+      # Extract high-res crop from original 4K frame
+      high_res_crop = self.original_frame_rgb[crop_y1:crop_y2, crop_x1:crop_x2].copy()
+      
+      # Resize if too large (optional, keeps network transfer reasonable)
+      if high_res_crop.shape[0] > self.high_quality_crop_size or high_res_crop.shape[1] > self.high_quality_crop_size:
+        scale = self.high_quality_crop_size / max(high_res_crop.shape[0], high_res_crop.shape[1])
+        new_width = int(high_res_crop.shape[1] * scale)
+        new_height = int(high_res_crop.shape[0] * scale)
+        high_res_crop = cv2.resize(high_res_crop, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
+  
+      face['original_crop'] = high_res_crop
+        
     tracked_faces = self._simple_track_assignment(faces)
 
     faces_to_send = []
@@ -247,6 +347,7 @@ class FaceRecognitionClient:
           self.recognized_tracks = server_result.get('recognized_tracks', {})
           self.recognition_attempts = server_result.get('recognition_attempts', {})
           self.failed_tracks = server_result.get('failed_tracks', {})
+          self._log_recognition_updates(server_result)
         else:
           print(f"Server error: {response.status_code}")
       except Exception as e:
@@ -323,8 +424,17 @@ class FaceRecognitionClient:
     if not cap.isOpened():
       raise RuntimeError(f"Failed to open camera {camera_index}")
     
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    camera_name = self._get_camera_name(cap, camera_index)
+    print(f"Camera device: {camera_name}")
+    print("Detecting maximum camera resolution...")
+    max_width, max_height = self._get_max_camera_resolution(cap)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, max_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, max_height)
+    
+    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(f"Camera resolution: {actual_width}x{actual_height}")
+    print(f"Detection mode: Fast tracking (640x640) + High-quality crops")
     
     fps_start_time = time.time()
     fps_frame_count = 0

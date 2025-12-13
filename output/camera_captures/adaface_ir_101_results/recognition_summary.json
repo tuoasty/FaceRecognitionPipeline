@@ -9,9 +9,9 @@
   },
   "below_threshold_candidates": [],
   "unique_students": 1,
-  "timestamp": "2025-12-11T14:07:59.678605",
+  "timestamp": "2025-12-12T14:32:24.873591",
   "settings": {
-    "similarity_threshold": 0.5,
+    "similarity_threshold": 0.35,
     "aggregation_method": "consensus"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "session_id": "local_tenveo_test_1",
+  "start_time": "2025-12-12T15:21:56.076585",
+  "end_time": "2025-12-12T15:24:14.718510",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.4,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 1705,
+    "total_faces_detected": 874,
+    "total_recognition_attempts": 78,
+    "unique_students_recognized": 1,
+    "unrecognized_tracks": 20
+  },
+  "duration_seconds": 138.641925
+}

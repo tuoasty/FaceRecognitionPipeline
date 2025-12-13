@@ -519,7 +519,7 @@ def main():
   parser.add_argument(
     '--threshold',
     type=float,
-    default=0.5,
+    default=0.35,
     help='Similarity threshold for positive match (0-1)'
   )
   parser.add_argument(
