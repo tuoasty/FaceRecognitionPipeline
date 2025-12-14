@@ -12,19 +12,16 @@ import requests
 import base64
 from datetime import datetime
 
-from face_recognition import FaceProcessor
 from performance_monitor_client import PerformanceMonitorClient
 
 class FaceRecognitionClient:
   def __init__(self,
               server_url='http://localhost:5000',
-              use_gpu=True,
               auto_snapshot=True,
               snapshot_interval=5.0,
-              max_tracking_distance=100,
               session_name=None,
               enable_performance_monitoring=True,
-              batch_size=5):
+              frame_skip=3):  # Send every Nth frame
     
     print("\n" + "="*70)
     print("INITIALIZING FACE RECOGNITION CLIENT")
@@ -74,43 +71,13 @@ class FaceRecognitionClient:
       self.perf_monitor.log_detailed_frames = False
     else:
       self.perf_monitor = None
-    
-    print("\nLoading face detection model...")
-    if use_gpu and torch.cuda.is_available():
-      providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-      print("  Using GPU for face detection")
-    else:
-      providers = ['CPUExecutionProvider']
-      print("  Using CPU for face detection")
-    
-    self.face_processor = FaceProcessor(
-      output_size=112,
-      det_size=(640, 640),
-      det_thresh=0.5,
-      quality_filter_config={
-        'min_det_score': 0.5,
-        'min_face_size': 40,
-        'max_yaw': 60,
-        'max_pitch': 45,
-        'max_roll': 45,
-        'check_blur': True,
-        'blur_threshold': 50
-      },
-      providers=providers
-    )
-    
-    self.original_frame_rgb = None
-    self.high_quality_crop_size = 600
-    
-    
+  
     self.auto_snapshot = auto_snapshot
     self.snapshot_interval = snapshot_interval
     self.last_snapshot_time = None
     
     self.frame_count = 0
     self.active_tracks = {}
-    self.next_track_id = 0
-    self.max_tracking_distance = max_tracking_distance
     self.recognized_tracks = {}
     self.recognition_attempts = {}
     self.failed_tracks = {}
@@ -118,10 +85,8 @@ class FaceRecognitionClient:
     signal.signal(signal.SIGINT, self._signal_handler)
     signal.signal(signal.SIGTERM, self._signal_handler)
 
-    self.batch_size = batch_size
-    self.pending_faces = []
+    self.frame_skip = frame_skip
     self.frames_since_last_send = 0
-    
     print("\n" + "="*70)
     print("Client ready!")
     print(f"Server: {self.server_url}")
@@ -132,50 +97,28 @@ class FaceRecognitionClient:
     print("\n\nReceived interrupt signal. Shutting down gracefully...")
     self.running = False
   
-  def _simple_track_assignment(self, faces: List[Dict]) -> Dict:
-    new_assignments = {}
+  def _encode_image_base64(self, image: np.ndarray, format='png') -> str:
+    """Encode image with maximum quality
     
-    for face in faces:
-      bbox = face['bbox']
-      center_x = (bbox[0] + bbox[2]) / 2
-      center_y = (bbox[1] + bbox[3]) / 2
-
-      best_track_id = None
-      best_distance = self.max_tracking_distance
-      
-      for track_id, last_pos in self.active_tracks.items():
-        dx = center_x - last_pos['x']
-        dy = center_y - last_pos['y']
-        distance = np.sqrt(dx**2 + dy**2)
-        
-        if distance < best_distance:
-          best_distance = distance
-          best_track_id = track_id
-  
-      if best_track_id is not None and best_track_id not in new_assignments:
-        track_id = best_track_id
-      else:
-        track_id = self.next_track_id
-        self.next_track_id += 1
-      
-      new_assignments[track_id] = {
-        'x': center_x,
-        'y': center_y,
-        'face': face
-      }
-    
-    self.active_tracks = {
-      tid: {'x': data['x'], 'y': data['y'], 'face': data['face']}
-      for tid, data in new_assignments.items()
-    }
-
-    return new_assignments
-  
-  def _encode_image_base64(self, image: np.ndarray, quality=95) -> str:
-    """Encode image with high quality JPEG"""
+    Args:
+        image: RGB image array
+        format: 'png' for lossless (larger) or 'jpg' for lossy (smaller)
+    """
     image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
-    _, buffer = cv2.imencode('.jpg', image_bgr, encode_params)
+    
+    if format == 'png':
+        # PNG is lossless but larger
+        encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 3]  # 0-9, 3 is good balance
+        _, buffer = cv2.imencode('.png', image_bgr, encode_params)
+    else:
+        # JPEG with maximum quality
+        encode_params = [
+            cv2.IMWRITE_JPEG_QUALITY, 100,
+            cv2.IMWRITE_JPEG_OPTIMIZE, 1,
+            cv2.IMWRITE_JPEG_PROGRESSIVE, 1
+        ]
+        _, buffer = cv2.imencode('.jpg', image_bgr, encode_params)
+    
     return base64.b64encode(buffer).decode('utf-8')
   
   def _get_camera_name(self, cap: cv2.VideoCapture, camera_index: int) -> str:
@@ -216,6 +159,8 @@ class FaceRecognitionClient:
     for width, height in test_resolutions:
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        print(cap.get(cv2.CAP_PROP_FOURCC))
+        print(cap.get(cv2.CAP_PROP_FPS))
         
         actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -261,7 +206,7 @@ class FaceRecognitionClient:
       'bbox': [float(x) for x in face['bbox']],
       'det_score': float(face['det_score']),
       'quality_metrics': quality_metrics_clean,
-      'aligned_face_base64': self._encode_image_base64(face['aligned_face'], quality=95),
+      'aligned_face_base64': self._encode_image_base64(face['aligned_face'], format='png'),
       'timestamp': datetime.now().isoformat()
     }
 
@@ -277,115 +222,95 @@ class FaceRecognitionClient:
       timings = self.perf_monitor.start_frame()
 
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    self.original_frame_rgb = frame_rgb.copy()
     
     if self.perf_monitor:
       self.perf_monitor.mark_capture_end(timings)
 
-    faces = self.face_processor.process_numpy(frame_rgb, return_all=True)
+    # No local detection - send frame to server
+    self.frames_since_last_send += 1
     
-    if self.perf_monitor:
-      self.perf_monitor.mark_detection_end(timings)
-    
-    for face in faces:
-      x1, y1, x2, y2 = map(int, face['bbox'])
-      
-      # Calculate expanded crop region for better context
-      face_width = x2 - x1
-      face_height = y2 - y1
-      margin = int(max(face_width, face_height) * 0.3)  # 30% margin
-      
-      # Expand bounding box with margin
-      crop_x1 = max(0, x1 - margin)
-      crop_y1 = max(0, y1 - margin)
-      crop_x2 = min(self.original_frame_rgb.shape[1], x2 + margin)
-      crop_y2 = min(self.original_frame_rgb.shape[0], y2 + margin)
-      
-      # Extract high-res crop from original 4K frame
-      high_res_crop = self.original_frame_rgb[crop_y1:crop_y2, crop_x1:crop_x2].copy()
-      
-      # Resize if too large (optional, keeps network transfer reasonable)
-      if high_res_crop.shape[0] > self.high_quality_crop_size or high_res_crop.shape[1] > self.high_quality_crop_size:
-        scale = self.high_quality_crop_size / max(high_res_crop.shape[0], high_res_crop.shape[1])
-        new_width = int(high_res_crop.shape[1] * scale)
-        new_height = int(high_res_crop.shape[0] * scale)
-        high_res_crop = cv2.resize(high_res_crop, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
-  
-      face['original_crop'] = high_res_crop
-        
-    tracked_faces = self._simple_track_assignment(faces)
-
-    faces_to_send = []
-    current_time = time.time()
-
-    for track_id, track_data in tracked_faces.items():
-        face = track_data['face']
-        face_data = self._prepare_face_data(face, track_id)
-        faces_to_send.append(face_data)
-
-    result = {'faces_detected': len(faces), 'active_tracks': len(tracked_faces)}
+    result = {
+        'faces_detected': 0,
+        'active_tracks': 0,
+        'recognized_tracks': self.recognized_tracks,
+        'recognition_attempts': self.recognition_attempts,
+        'failed_tracks': self.failed_tracks
+    }
     network_request_sent = False
     
-    if faces_to_send:
-      # Accumulate faces
-      self.pending_faces.extend(faces_to_send)
-      self.frames_since_last_send += 1
-      
-      # Only send when we have enough frames OR every N frames
-      if len(self.pending_faces) >= self.batch_size or self.frames_since_last_send >= 10:
+    # Send every N frames to reduce bandwidth
+    if self.frames_since_last_send >= self.frame_skip:  # Send every 3rd frame
         if self.perf_monitor:
-          self.perf_monitor.mark_network_start(timings)
+            self.perf_monitor.mark_network_start(timings)
         
         try:
-          response = requests.post(
-            f'{self.server_url}/process_faces',
-            json={'faces': self.pending_faces, 'frame_count': self.frame_count},
-            timeout=5
-          )
-          
-          if self.perf_monitor:
-            self.perf_monitor.mark_network_end(timings)
-          
-          network_request_sent = True
-          
-          if response.status_code == 200:
-            server_result = response.json()
-            result.update(server_result)
+            # Encode frame with maximum quality
+            frame_base64 = self._encode_image_base64(frame_rgb, format='png')
             
-            self.recognized_tracks = server_result.get('recognized_tracks', {})
-            self.recognition_attempts = server_result.get('recognition_attempts', {})
-            self.failed_tracks = server_result.get('failed_tracks', {})
-            self._log_recognition_updates(server_result)
-          else:
-            print(f"Server error: {response.status_code}")
+            response = requests.post(
+                f'{self.server_url}/process_frame',
+                json={
+                    'frame': frame_base64,
+                    'frame_count': self.frame_count,
+                    'timestamp': datetime.now().isoformat()
+                },
+                timeout=5
+            )
+            
+            if self.perf_monitor:
+                self.perf_monitor.mark_network_end(timings)
+            
+            network_request_sent = True
+            
+            if response.status_code == 200:
+                server_result = response.json()
+                result.update(server_result)
+                
+                # Update local tracking state from server
+                self.recognized_tracks = server_result.get('recognized_tracks', {})
+                self.recognition_attempts = server_result.get('recognition_attempts', {})
+                self.failed_tracks = server_result.get('failed_tracks', {})
+                
+                # Update active tracks for display
+                if 'tracks' in server_result:
+                    self.active_tracks = {}
+                    for track in server_result['tracks']:
+                        track_id = track['track_id']
+                        self.active_tracks[track_id] = {
+                            'x': (track['bbox'][0] + track['bbox'][2]) / 2,
+                            'y': (track['bbox'][1] + track['bbox'][3]) / 2,
+                            'face': track
+                        }
+                
+                self._log_recognition_updates(server_result)
+            else:
+                print(f"Server error: {response.status_code}")
         except Exception as e:
-          print(f"Error sending to server: {e}")
-          if self.perf_monitor:
-            self.perf_monitor.mark_network_end(timings)
+            print(f"Error sending to server: {e}")
+            if self.perf_monitor:
+                self.perf_monitor.mark_network_end(timings)
         finally:
-          # Clear batch after sending
-          self.pending_faces = []
-          self.frames_since_last_send = 0
-      else:
+            self.frames_since_last_send = 0
+    else:
         # Not sending this frame
         if self.perf_monitor:
-          self.perf_monitor.mark_network_start(timings)
-          self.perf_monitor.mark_network_end(timings)
+            self.perf_monitor.mark_network_start(timings)
+            self.perf_monitor.mark_network_end(timings)
     
     if self.perf_monitor:
       perf_metrics = self.perf_monitor.end_frame(
-        timings,
-        num_faces_detected=len(faces),
-        network_request_sent=network_request_sent
+          timings,
+          num_faces_detected=result.get('faces_detected', 0),
+          network_request_sent=network_request_sent
       )
       result['client_performance'] = perf_metrics
     
     return result
-  
+
   def send_snapshot(self, frame: np.ndarray):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    _, buffer = cv2.imencode('.jpg', frame)
-    snapshot_base64 = base64.b64encode(buffer).decode('utf-8')
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    snapshot_base64 = self._encode_image_base64(frame_rgb, format='png')
     
     try:
       response = requests.post(
@@ -445,13 +370,21 @@ class FaceRecognitionClient:
     print(f"Camera device: {camera_name}")
     print("Detecting maximum camera resolution...")
     max_width, max_height = self._get_max_camera_resolution(cap)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, max_width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, max_height)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, max_width)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, max_height)
     
     actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(f"Camera resolution: {actual_width}x{actual_height}")
     print(f"Detection mode: Fast tracking (640x640) + High-quality crops")
+    if display:
+      window_name = 'Face Recognition Client'
+      cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+      cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+      print("Display: Fullscreen mode enabled")
+      print("Press 'f' to toggle fullscreen, 'q' to quit\n")
+    else:
+      window_name = None
     
     fps_start_time = time.time()
     fps_frame_count = 0
@@ -460,9 +393,14 @@ class FaceRecognitionClient:
     if self.auto_snapshot:
       self.last_snapshot_time = time.time()
     
+    test = 0
+
     try:
       while self.running:
         ret, frame = cap.read()
+        if test == 0:
+           cv2.imwrite("raw_test.png", frame)
+           test = 1
         if not ret:
           print("Failed to read frame")
           break
@@ -483,9 +421,8 @@ class FaceRecognitionClient:
             self.last_snapshot_time = current_time
         
         if display:
-          if self.frame_count % 2 == 0:
-              display_frame = self._draw_display(frame, result, current_fps)
-              cv2.imshow('Face Recognition Client', display_frame)
+          display_frame = self._draw_display(frame, result, current_fps)
+          cv2.imshow('Face Recognition Client', display_frame)
           key = cv2.waitKey(1) & 0xFF
           
           if key == ord('q'):
@@ -590,17 +527,6 @@ def main():
     help='Maximum frames to process (for testing)'
   )
   parser.add_argument(
-    '--use_gpu',
-    action='store_true',
-    default=True,
-    help='Use GPU acceleration (default: True)'
-  )
-  parser.add_argument(
-    '--use_cpu',
-    action='store_true',
-    help='Force CPU usage (overrides --use_gpu)'
-  )
-  parser.add_argument(
     '--auto_snapshot',
     action='store_true',
     default=True,
@@ -630,7 +556,7 @@ def main():
     help='Enable performance monitoring (default: True)'
   )
   parser.add_argument(
-    '--batch_size',
+    '--frame_skip',
     type=int,
     default=5,
     help='Number of faces to accumulate before sending to server (default: 5)'
@@ -638,27 +564,15 @@ def main():
 
       
   args = parser.parse_args()
-  
-  use_gpu = args.use_gpu and not args.use_cpu
-  if use_gpu:
-    if torch.cuda.is_available():
-      print(f"Using GPU: {torch.cuda.get_device_name(0)}")
-    else:
-      print("GPU requested but not available, falling back to CPU")
-      use_gpu = False
-  else:
-    print("Using CPU (GPU disabled)")
-
   auto_snapshot = args.auto_snapshot and not args.no_auto_snapshot
 
   client = FaceRecognitionClient(
     server_url=args.server,
-    use_gpu=use_gpu,
     auto_snapshot=auto_snapshot,
     snapshot_interval=args.snapshot_interval,
     session_name=args.session_name,
     enable_performance_monitoring=args.enable_perf_monitor,
-    batch_size=args.batch_size
+    frame_skip=args.frame_skip
   )
   
   client.run(

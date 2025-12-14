@@ -1,0 +1,33 @@
+{
+  "session_id": "tenveo_727_15",
+  "last_updated": "2025-12-13T13:35:06.027886",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-13T13:33:56.410502",
+      "confidence": 0.5635120272636414,
+      "track_id": "track_0000",
+      "duration_seconds": 0.0,
+      "detection_quality": {
+        "det_score": 0.805274248123169,
+        "blur_score": 80.17887462153627
+      },
+      "saved_face_path": "sessions\\tenveo_727_15\\recognized_faces\\STU0010_KH\\track_0000_20251213_133359_499536_conf0.564_aligned.png"
+    },
+    {
+      "student_id": "STU0015",
+      "name": "OV",
+      "first_seen": "2025-12-13T13:34:46.587576",
+      "confidence": 0.5078606009483337,
+      "track_id": "track_0006",
+      "duration_seconds": 0.0,
+      "detection_quality": {
+        "det_score": 0.8338214159011841,
+        "blur_score": 14.17431609484614
+      },
+      "saved_face_path": "sessions\\tenveo_727_15\\recognized_faces\\STU0015_OV\\track_0006_20251213_133449_214942_conf0.436_aligned.png"
+    }
+  ],
+  "unrecognized": []
+}

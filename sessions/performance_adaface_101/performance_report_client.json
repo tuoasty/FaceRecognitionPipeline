@@ -1,0 +1,58 @@
+{
+  "session_info": {
+    "session_name": "performance_adaface_101",
+    "start_time": "2025-12-13T13:51:22.629523",
+    "end_time": "2025-12-13T13:53:10.468359",
+    "duration_seconds": 107.838836,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 45,
+    "total_faces_detected": 7,
+    "total_network_requests": 9,
+    "avg_faces_per_frame": 0.15555555555555556
+  },
+  "fps_metrics": {
+    "average_fps": 0.4172893705937256,
+    "current_fps": 0.38087551431267125,
+    "fps_history": [
+      {
+        "timestamp": 1765608761.395416,
+        "fps": 0.38087551431267125,
+        "frame_number": 30
+      }
+    ]
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 9.751593333203346,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 828.3562266667205,
+      "max_ms": 4863.799099999596,
+      "min_ms": 0.017700000171316788,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 828.2868799998445,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 838.113031111344,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 214.15625,
+      "peak_mb": 755.92578125,
+      "delta_mb": 541.76953125,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 12,
+    "total_ram_gb": 7.6436614990234375
+  }
+}

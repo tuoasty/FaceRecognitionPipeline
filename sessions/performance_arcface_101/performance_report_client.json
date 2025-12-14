@@ -1,0 +1,52 @@
+{
+  "session_info": {
+    "session_name": "performance_arcface_101",
+    "start_time": "2025-12-13T13:59:59.041418",
+    "end_time": "2025-12-13T14:01:08.222127",
+    "duration_seconds": 69.180709,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 20,
+    "total_faces_detected": 6,
+    "total_network_requests": 4,
+    "avg_faces_per_frame": 0.3
+  },
+  "fps_metrics": {
+    "average_fps": 0.2890979333559591,
+    "current_fps": 0.0,
+    "fps_history": []
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 8.696880000570673,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 934.2953849994956,
+      "max_ms": 5419.01180000059,
+      "min_ms": 0.02470000254106708,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 934.1514350004218,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 942.9971899997327,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 213.953125,
+      "peak_mb": 755.3046875,
+      "delta_mb": 541.3515625,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 12,
+    "total_ram_gb": 7.6436614990234375
+  }
+}

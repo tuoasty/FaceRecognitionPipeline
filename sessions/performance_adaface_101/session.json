@@ -1,0 +1,19 @@
+{
+  "session_id": "performance_adaface_101",
+  "start_time": "2025-12-13T13:51:22.028304",
+  "end_time": "2025-12-13T13:53:09.932765",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.4,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 45,
+    "total_faces_detected": 0,
+    "total_recognition_attempts": 7,
+    "unique_students_recognized": 2,
+    "unrecognized_tracks": 0
+  },
+  "duration_seconds": 107.904461
+}

@@ -1,0 +1,55 @@
+{
+  "session_info": {
+    "session_name": "performance_arcface_50",
+    "model_identifier": "ARCFACE_IR_50_GPU",
+    "start_time": "2025-12-13T13:58:07.727699",
+    "end_time": "2025-12-13T13:59:29.944135",
+    "duration_seconds": 82.216436,
+    "component": "server"
+  },
+  "request_statistics": {
+    "total_requests_processed": 5,
+    "total_faces_processed": 7,
+    "total_faces_recognized": 2,
+    "total_faces_unknown": 0,
+    "avg_faces_per_request": 1.4,
+    "recognition_rate": 0.2857142857142857,
+    "requests_per_second": 0.0608150905495344
+  },
+  "latency_metrics": {
+    "recognition": {
+      "average_ms": 31.32196000078693,
+      "max_ms": 101.16999999445397,
+      "min_ms": 0.0020000006770715117,
+      "unit": "milliseconds"
+    },
+    "network_overhead": {
+      "average_ms": 375.9042999969097,
+      "unit": "milliseconds"
+    },
+    "end_to_end_server": {
+      "average_ms": 407.2262599976966,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 612.25390625,
+      "peak_mb": 1378.15234375,
+      "delta_mb": 765.8984375,
+      "unit": "megabytes"
+    },
+    "gpu_vram": {
+      "baseline_mb": 1084.50390625,
+      "peak_mb": 1306.50390625,
+      "delta_mb": 222.0,
+      "unit": "megabytes",
+      "available": true
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203,
+    "gpu_available": true
+  }
+}

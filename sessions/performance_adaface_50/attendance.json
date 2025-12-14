@@ -1,0 +1,33 @@
+{
+  "session_id": "performance_adaface_50",
+  "last_updated": "2025-12-13T13:57:20.543148",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-13T13:56:53.316129",
+      "confidence": 0.5638680458068848,
+      "track_id": "track_0004",
+      "duration_seconds": 0.0,
+      "detection_quality": {
+        "det_score": 0.8454106450080872,
+        "blur_score": 87.18582217507638
+      },
+      "saved_face_path": "sessions\\performance_adaface_50\\recognized_faces\\STU0010_KH\\track_0004_20251213_135655_915975_conf0.410_aligned.png"
+    },
+    {
+      "student_id": "STU0015",
+      "name": "OV",
+      "first_seen": "2025-12-13T13:57:17.744344",
+      "confidence": 0.4228212535381317,
+      "track_id": "track_0011",
+      "duration_seconds": 0.0,
+      "detection_quality": {
+        "det_score": 0.8373625874519348,
+        "blur_score": 42.274862325176606
+      },
+      "saved_face_path": "sessions\\performance_adaface_50\\recognized_faces\\STU0015_OV\\track_0011_20251213_135720_533150_conf0.423_aligned.png"
+    }
+  ],
+  "unrecognized": []
+}

@@ -16,6 +16,7 @@ import traceback
 from face_embedder import FaceEmbedder
 from gallery_manager import GalleryManager
 from performance_monitor_server import PerformanceMonitorServer
+from face_recognition import FaceProcessor
 
 app = Flask(__name__)
 
@@ -50,9 +51,12 @@ class LiveRecognitionTracker:
         return False
     
     if track_id in self.track_frame_buffers:
-        if len(self.track_frame_buffers[track_id]) >= 5: 
-            return True
-    
+        buffer = self.track_frame_buffers[track_id]
+        if len(buffer) >= 1:
+        
+            best = max(buffer, key=lambda f: f.get('det_score', 0) * min(f.get('quality_metrics', {}).get('blur_score', 0) / 100.0, 1.0))
+            if best.get('det_score', 0) > 0.6:  # Good detection
+                return True
     return False
   
   def add_frame(self, track_id: int, face_data: Dict, timestamp: str):
@@ -95,12 +99,12 @@ class LiveRecognitionTracker:
     last = datetime.fromisoformat(self.track_last_seen[track_id])
     return (last - first).total_seconds()
   
-  def update_client_track(self, track_id: int, bbox: List[float], timestamp: str):
-    """Update track position from client"""
-    self.client_tracks[track_id] = {
-        'bbox': bbox,
-        'last_seen': timestamp
-    }
+  # def update_client_track(self, track_id: int, bbox: List[float], timestamp: str):
+  #   """Update track position from client"""
+  #   self.client_tracks[track_id] = {
+  #       'bbox': bbox,
+  #       'last_seen': timestamp
+  #   }
     
   def is_track_in_cooldown(self, track_id: int) -> bool:
       if track_id in self.track_cooldowns:
@@ -163,6 +167,34 @@ class FaceRecognitionServer:
     )
     self.model_type = model_type
     self.architecture = architecture
+
+    print("\nLoading face detection model...")
+    if use_gpu and torch.cuda.is_available():
+      providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+      print("  Using GPU for face detection")
+    else:
+      providers = ['CPUExecutionProvider']
+      print("  Using CPU for face detection")
+    
+    self.face_processor = FaceProcessor(
+      output_size=112,
+      det_size=(640, 640),
+      det_thresh=0.5,
+      quality_filter_config={
+        'min_det_score': 0.5,
+        'min_face_size': 40,
+        'max_yaw': 60,
+        'max_pitch': 45,
+        'max_roll': 45,
+        'check_blur': True,
+        'blur_threshold': 50
+      },
+      providers=providers
+    )
+    
+    self.high_quality_crop_size = 600
+    self.max_tracking_distance = 100
+    self.next_track_id = 0
     
     print("\nLoading student gallery...")
     self.gallery = GalleryManager(gallery_path=gallery_path)
@@ -320,12 +352,8 @@ class FaceRecognitionServer:
       timings = self.perf_monitor.start_request()
 
     self.frame_count = frame_count
+    self.tracker.cleanup_stale_tracks(timeout_seconds=2.0)
     timestamp = datetime.now().isoformat()
-
-    for face_data in faces_data:
-      track_id = face_data['track_id']
-      bbox = face_data['bbox']
-      self.tracker.update_client_track(track_id, bbox, timestamp)
     
     self.total_faces_detected += len(faces_data)
     
@@ -432,14 +460,14 @@ class FaceRecognitionServer:
 
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
 
-    filename_aligned = f"track_{track_id:04d}_{timestamp}_conf{confidence:.3f}_aligned.jpg"
+    filename_aligned = f"track_{track_id:04d}_{timestamp}_conf{confidence:.3f}_aligned.png"
     filepath_aligned = os.path.join(output_dir, filename_aligned)
     aligned_face_bytes = base64.b64decode(aligned_face_base64)
     with open(filepath_aligned, 'wb') as f:
       f.write(aligned_face_bytes)
 
     if original_crop_base64:
-      filename_original = f"track_{track_id:04d}_{timestamp}_conf{confidence:.3f}_original.jpg"
+      filename_original = f"track_{track_id:04d}_{timestamp}_conf{confidence:.3f}_original.png"
       filepath_original = os.path.join(output_dir, filename_original)
       original_crop_bytes = base64.b64decode(original_crop_base64)
       with open(filepath_original, 'wb') as f:
@@ -499,7 +527,7 @@ class FaceRecognitionServer:
   
   def save_snapshot(self, snapshot_base64: str, frame_count: int, timestamp: str) -> str:
     snapshot_bytes = base64.b64decode(snapshot_base64)
-    filename = f'snapshot_frame_{frame_count:06d}_{timestamp}.jpg'
+    filename = f'snapshot_frame_{frame_count:06d}_{timestamp}.png'
     filepath = os.path.join(self.snapshots_dir, filename)
     
     with open(filepath, 'wb') as f:
@@ -555,32 +583,287 @@ class FaceRecognitionServer:
     print(f"\nOutput directory: {self.session_dir}")
     print("="*70 + "\n")
 
+  def process_full_frame(self, frame_rgb: np.ndarray, frame_count: int, timestamp: str) -> Dict:
+    """Process full frame: detect -> track -> recognize"""
+    
+    if self.perf_monitor:
+      timings = self.perf_monitor.start_request()
+
+    self.frame_count = frame_count
+    
+    # Detect faces
+    faces = self.face_processor.process_numpy(frame_rgb, return_all=True)
+    
+    # Extract high-quality crops
+    for face in faces:
+      x1, y1, x2, y2 = map(int, face['bbox'])
+      
+      face_width = x2 - x1
+      face_height = y2 - y1
+      margin = int(max(face_width, face_height) * 0.3)
+      
+      crop_x1 = max(0, x1 - margin)
+      crop_y1 = max(0, y1 - margin)
+      crop_x2 = min(frame_rgb.shape[1], x2 + margin)
+      crop_y2 = min(frame_rgb.shape[0], y2 + margin)
+      
+      high_res_crop = frame_rgb[crop_y1:crop_y2, crop_x1:crop_x2].copy()
+      
+      if high_res_crop.shape[0] > self.high_quality_crop_size or high_res_crop.shape[1] > self.high_quality_crop_size:
+        scale = self.high_quality_crop_size / max(high_res_crop.shape[0], high_res_crop.shape[1])
+        new_width = int(high_res_crop.shape[1] * scale)
+        new_height = int(high_res_crop.shape[0] * scale)
+        high_res_crop = cv2.resize(high_res_crop, (new_width, new_height), interpolation=cv2.INTER_LANCZOS4)
+  
+      face['original_crop'] = high_res_crop
+    
+    # Track faces
+    tracked_faces = self._simple_track_assignment(faces, timestamp)
+    
+    # Prepare faces for recognition
+    faces_data = []
+    for track_id, track_data in tracked_faces.items():
+      face = track_data['face']
+      face_data = self._prepare_face_data(face, track_id, timestamp)
+      faces_data.append(face_data)
+    
+    # Process recognition
+    if self.perf_monitor:
+      self.perf_monitor.mark_recognition_start(timings)
+    
+    recognition_events = []
+    num_recognized = 0
+    num_unknown = 0
+    
+    for face_data in faces_data:
+      track_id = face_data['track_id']
+      self.tracker.add_frame(track_id, face_data, timestamp)
+      
+      if self.tracker.should_recognize(track_id, self.frame_count):
+        best_frame = self.tracker.get_best_frame(track_id)
+        
+        if best_frame is not None:
+          result = self._recognize_face(best_frame, track_id)
+          self.tracker.increment_attempts(track_id)
+          
+          if result is not None:
+            if result['recognized']:
+              num_recognized += 1
+              self.tracker.mark_recognized(track_id, result)
+              face_filename = self._save_face_image(
+                best_frame['aligned_face_base64'],
+                track_id,
+                result['student_id'],
+                result['name'],
+                result['confidence'],
+                recognized=True,
+                original_crop_base64=best_frame.get("original_crop_base64")
+              )
+              result['saved_face_path'] = face_filename
+              recognition_events.append(('recognized', result))
+              print(f"[Frame {self.frame_count}] Recognized: {result['name']} "
+                f"(track_{track_id:04d}, confidence: {result['confidence']:.3f})")
+            else:
+              if self.tracker.recognition_attempts.get(track_id, 0) >= self.max_recognition_attempts:
+                num_unknown += 1
+                face_filename = self._save_face_image(
+                  best_frame['aligned_face_base64'],
+                  track_id,
+                  result['student_id'],
+                  result['name'],
+                  result['confidence'],
+                  recognized=False
+                )
+                result['saved_face_path'] = face_filename
+                recognition_events.append(('unrecognized', result))
+    
+    if self.perf_monitor:
+      self.perf_monitor.mark_recognition_end(timings)
+    
+    if recognition_events:
+      self._update_attendance(recognition_events)
+    
+    # Prepare tracks for client display
+    # Prepare tracks for client display
+    tracks_for_client = []
+    for track_id, track_data in tracked_faces.items():
+      face = track_data['face']
+      tracks_for_client.append({
+        'track_id': track_id,
+        'bbox': [float(x) for x in face['bbox']],  # <-- Convert to list of floats
+        'det_score': float(face['det_score'])
+      })
+    if self.perf_monitor:
+      perf_metrics = self.perf_monitor.end_request(
+        timings,
+        num_faces_processed=len(faces_data),
+        num_faces_recognized=num_recognized,
+        num_faces_unknown=num_unknown
+      )
+    else:
+      perf_metrics = {}
+    
+    # Replace the return statement at the end of process_full_frame (around line 745-760)
+
+    # Build newly_recognized dict properly
+    newly_recognized = {}
+    for event_type, result in recognition_events:
+      if event_type == 'recognized':
+        track_id = result['track_id']
+        newly_recognized[str(track_id)] = {
+          'student_id': result['student_id'],
+          'name': result['name'],
+          'confidence': result['confidence'],
+          'timestamp': result['timestamp']
+        }
+    
+    # Build newly_failed list properly
+    newly_failed = []
+    for event_type, result in recognition_events:
+      if event_type == 'unrecognized':
+        newly_failed.append(str(result['track_id']))
+    
+    return {
+      'frame_count': self.frame_count,
+      'faces_detected': len(faces),
+      'active_tracks': len(tracked_faces),
+      'tracks': tracks_for_client,
+      'recognized_tracks': {str(k): v for k, v in self.tracker.recognized_tracks.items()},
+      'recognition_attempts': {str(k): v for k, v in self.tracker.recognition_attempts.items()},
+      'failed_tracks': {str(k): True for k in self.tracker.recognition_attempts.keys() 
+                      if self.tracker.recognition_attempts[k] >= self.max_recognition_attempts 
+                      and k not in self.tracker.recognized_tracks},
+      'newly_recognized': newly_recognized,
+      'newly_failed': newly_failed,
+      'performance': perf_metrics
+    }
+  
+  def _simple_track_assignment(self, faces: List[Dict], timestamp: str) -> Dict:
+    """Simple tracking based on spatial proximity"""
+    new_assignments = {}
+    
+    # Get existing active tracks from tracker
+    active_tracks = {}
+    current_time = datetime.now()
+    timeout_seconds = 2.0  # Consider tracks stale after 2 seconds
+
+    for track_id, track_info in self.tracker.client_tracks.items():
+      # Check if track is still recent
+      last_seen = datetime.fromisoformat(track_info['last_seen'])
+      if (current_time - last_seen).total_seconds() > timeout_seconds:
+        continue
+        
+      bbox = track_info['bbox']
+      active_tracks[track_id] = {
+        'x': (bbox[0] + bbox[2]) / 2,
+        'y': (bbox[1] + bbox[3]) / 2
+      }
+    
+    for face in faces:
+      bbox = face['bbox']
+      center_x = (bbox[0] + bbox[2]) / 2
+      center_y = (bbox[1] + bbox[3]) / 2
+
+      best_track_id = None
+      best_distance = self.max_tracking_distance
+      
+      for track_id, last_pos in active_tracks.items():
+        dx = center_x - last_pos['x']
+        dy = center_y - last_pos['y']
+        distance = np.sqrt(dx**2 + dy**2)
+        
+        if distance < best_distance:
+          best_distance = distance
+          best_track_id = track_id
+  
+      if best_track_id is not None and best_track_id not in new_assignments:
+        track_id = best_track_id
+      else:
+        track_id = self.next_track_id
+        self.next_track_id += 1
+      
+      new_assignments[track_id] = {
+        'x': center_x,
+        'y': center_y,
+        'face': face
+      }
+      
+      # Update tracker
+      # self.tracker.update_client_track(track_id, bbox, timestamp)
+    
+    return new_assignments
+  
+  def _prepare_face_data(self, face: Dict, track_id: int, timestamp: str) -> Dict:
+    """Prepare face data for recognition"""
+    quality_metrics = face.get('quality_metrics', {})
+    quality_metrics_clean = {
+      k: float(v) if isinstance(v, (np.integer, np.floating)) else v
+      for k, v in quality_metrics.items()
+    }
+    
+    # Encode aligned face
+    aligned_face_bgr = cv2.cvtColor(face['aligned_face'], cv2.COLOR_RGB2BGR)
+    _, buffer = cv2.imencode('.png', aligned_face_bgr, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+    aligned_base64 = base64.b64encode(buffer).decode('utf-8')
+    
+    face_data = {
+      'track_id': int(track_id),
+      'bbox': [float(x) for x in face['bbox']],
+      'det_score': float(face['det_score']),
+      'quality_metrics': quality_metrics_clean,
+      'aligned_face_base64': aligned_base64,
+      'timestamp': timestamp
+    }
+
+    if 'original_crop' in face and face['original_crop'].size > 0:
+      crop_bgr = cv2.cvtColor(face['original_crop'], cv2.COLOR_RGB2BGR)
+      _, buffer = cv2.imencode('.png', crop_bgr, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+      face_data['original_crop_base64'] = base64.b64encode(buffer).decode('utf-8')
+    
+    return face_data
+  
+  def cleanup_stale_tracks(self, timeout_seconds=5.0):
+    """Remove tracks that haven't been seen recently"""
+    current_time = datetime.now()
+    stale_tracks = []
+    
+    for track_id, track_info in self.client_tracks.items():
+        last_seen = datetime.fromisoformat(track_info['last_seen'])
+        if (current_time - last_seen).total_seconds() > timeout_seconds:
+            stale_tracks.append(track_id)
+    
+    for track_id in stale_tracks:
+        del self.client_tracks[track_id]
+        # Optionally clean up other track data
+        if track_id in self.track_frame_buffers:
+            del self.track_frame_buffers[track_id]
+
 
 @app.route('/health', methods=['GET'])
 def health():
   return jsonify({'status': 'ok', 'session': server.session_name if server else None})
 
-@app.route('/process_faces', methods=['POST'])
-def process_faces():
-  if server.session_name is None:
-    return jsonify({'error': 'No active session. Call /init_session first'}), 400
+# @app.route('/process_faces', methods=['POST'])
+# def process_faces():
+#   if server.session_name is None:
+#     return jsonify({'error': 'No active session. Call /init_session first'}), 400
   
-  try:
-    data = request.json
-    faces_data = data.get('faces', [])
-    frame_count = data.get('frame_count', 0)
+#   try:
+#     data = request.json
+#     faces_data = data.get('faces', [])
+#     frame_count = data.get('frame_count', 0)
     
-    result = server.process_faces(faces_data, frame_count)
-    return jsonify(result)
-  except Exception as e:
-    import traceback
-    error_details = {
-      'error': str(e),
-      'error_type': type(e).__name__,
-      'traceback': traceback.format_exc()
-    }
-    print(f"\n[ERROR] process_faces failed: {error_details['traceback']}")
-    return jsonify(error_details), 500
+#     result = server.process_faces(faces_data, frame_count)
+#     return jsonify(result)
+#   except Exception as e:
+#     import traceback
+#     error_details = {
+#       'error': str(e),
+#       'error_type': type(e).__name__,
+#       'traceback': traceback.format_exc()
+#     }
+#     print(f"\n[ERROR] process_faces failed: {error_details['traceback']}")
+#     return jsonify(error_details), 500
 
 @app.route('/save_snapshot', methods=['POST'])
 def save_snapshot():
@@ -651,6 +934,38 @@ def init_session():
       'traceback': traceback.format_exc()
     }
     print(f"\n[ERROR] init_session failed: {error_details['traceback']}")
+    return jsonify(error_details), 500
+  
+@app.route('/process_frame', methods=['POST'])
+def process_frame():
+  if server.session_name is None:
+    return jsonify({'error': 'No active session. Call /init_session first'}), 400
+  
+  try:
+    data = request.json
+    frame_base64 = data.get('frame')
+    frame_count = data.get('frame_count', 0)
+    timestamp = data.get('timestamp', datetime.now().isoformat())
+  
+
+    # Decode frame
+    frame_bytes = base64.b64decode(frame_base64)
+    print(len(frame_base64) / 1024 / 1024, "MB")
+    frame_array = np.frombuffer(frame_bytes, np.uint8)
+    frame = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    
+    # Process frame on server
+    result = server.process_full_frame(frame_rgb, frame_count, timestamp)
+    return jsonify(result)
+  except Exception as e:
+    import traceback
+    error_details = {
+      'error': str(e),
+      'error_type': type(e).__name__,
+      'traceback': traceback.format_exc()
+    }
+    print(f"\n[ERROR] process_frame failed: {error_details['traceback']}")
     return jsonify(error_details), 500
 
 
@@ -747,6 +1062,12 @@ def main():
     '--require_session_name',
     action='store_true',
     help='Require session name from client (default: False)'
+  )
+  parser.add_argument(
+    '--frame_skip',
+    type=int,
+    default=3,
+    help='Send every Nth frame to reduce bandwidth (default: 3)'
   )
       
   args = parser.parse_args()
