@@ -78,7 +78,7 @@ class EmbeddingGenerator:
       model_type=model_type
     )
     self.face_processor = FaceProcessor(
-      output_size=112,  # Match model input size
+      output_size=112,
       det_size=(640, 640),
       det_thresh=0.5,
       quality_filter_config={
@@ -165,7 +165,6 @@ class EmbeddingGenerator:
       
       for img_path in image_files:
         try:
-          # Detect and align face
           faces = self.face_processor.process_image(str(img_path), return_all=True)
           
           if len(faces) == 0:
@@ -175,11 +174,9 @@ class EmbeddingGenerator:
           aligned_face = faces[0]['aligned_face']
           
           if use_augmentation:
-            # Generate augmentations
             augmented = augment_face_for_enrollment(aligned_face, num_augmentations=8)
             all_face_images.extend(augmented)
           else:
-            # Just use the aligned face
             all_face_images.append(aligned_face)
           
           valid_files.append(img_path.name)
@@ -262,11 +259,9 @@ class EmbeddingGenerator:
       for img_path in tqdm(image_files, desc=f"  {category_name}"):
         try:
           person_name = self.extract_name_from_filename(img_path.name)
-          
-          # Load image directly (already aligned from DatasetPreprocessor)
+
           img = self.load_image(img_path)
-          
-          # Resize to 112x112 if needed (DatasetPreprocessor uses 224x224)
+
           if img.shape[0] != 112 or img.shape[1] != 112:
             img = cv2.resize(img, (112, 112))
           
@@ -328,10 +323,7 @@ class EmbeddingGenerator:
     
     for img_path in tqdm(image_files, desc="Processing negatives"):
       try:
-        # Load image directly (already aligned from DatasetPreprocessor)
         img = self.load_image(img_path)
-        
-        # Resize to 112x112 if needed (DatasetPreprocessor uses 224x224)
         if img.shape[0] != 112 or img.shape[1] != 112:
           img = cv2.resize(img, (112, 112))
         

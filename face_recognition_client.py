@@ -21,7 +21,7 @@ class FaceRecognitionClient:
               snapshot_interval=5.0,
               session_name=None,
               enable_performance_monitoring=True,
-              frame_skip=3):  # Send every Nth frame
+              frame_skip=3):
     
     print("\n" + "="*70)
     print("INITIALIZING FACE RECOGNITION CLIENT")
@@ -98,20 +98,12 @@ class FaceRecognitionClient:
     self.running = False
   
   def _encode_image_base64(self, image: np.ndarray, format='png') -> str:
-    """Encode image with maximum quality
-    
-    Args:
-        image: RGB image array
-        format: 'png' for lossless (larger) or 'jpg' for lossy (smaller)
-    """
     image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     
     if format == 'png':
-        # PNG is lossless but larger
-        encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 3]  # 0-9, 3 is good balance
+        encode_params = [cv2.IMWRITE_PNG_COMPRESSION, 3]
         _, buffer = cv2.imencode('.png', image_bgr, encode_params)
     else:
-        # JPEG with maximum quality
         encode_params = [
             cv2.IMWRITE_JPEG_QUALITY, 100,
             cv2.IMWRITE_JPEG_OPTIMIZE, 1,
@@ -122,12 +114,8 @@ class FaceRecognitionClient:
     return base64.b64encode(buffer).decode('utf-8')
   
   def _get_camera_name(self, cap: cv2.VideoCapture, camera_index: int) -> str:
-    """Get the camera device name"""
     try:
-        # Try to get the camera description from OpenCV
         backend = cap.getBackendName()
-        
-        # Try CAP_PROP_DESCRIPTION (available in newer OpenCV versions)
         try:
             desc = cap.get(cv2.CAP_PROP_DESCRIPTION)
             if desc:
@@ -140,17 +128,14 @@ class FaceRecognitionClient:
         return f"Camera {camera_index}"
     
   def _get_max_camera_resolution(self, cap: cv2.VideoCapture) -> tuple:
-    """Get the maximum supported resolution from the camera"""
-    # Common resolutions to test (from highest to lowest)
     test_resolutions = [
-        (3840, 2160),  # 4K
-        (2560, 1440),  # 2K
-        (1920, 1080),  # Full HD
-        (1280, 720),   # HD
-        (640, 480),    # VGA
+        (3840, 2160),
+        (2560, 1440),
+        (1920, 1080), 
+        (1280, 720),
+        (640, 480), 
     ]
-    
-    # Store original resolution
+
     original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
@@ -175,21 +160,17 @@ class FaceRecognitionClient:
     return max_width, max_height
   
   def _log_recognition_updates(self, result: Dict):
-    """Log recognition updates in real-time"""
-    # Log newly recognized students
     if 'newly_recognized' in result:
         for track_id, student_info in result['newly_recognized'].items():
             print(f"[RECOGNIZED] Track {track_id}: {student_info['name']} "
                   f"(confidence: {student_info['confidence']:.3f})")
-    
-    # Log closest matches for tracks being processed
+
     if 'closest_matches' in result:
         for track_id, match_info in result['closest_matches'].items():
             if match_info:
                 print(f"[CLOSEST MATCH] Track {track_id}: {match_info['name']} "
                       f"(distance: {match_info['distance']:.3f})")
-    
-    # Log failed recognitions
+
     if 'newly_failed' in result:
         for track_id in result['newly_failed']:
             print(f"[FAILED] Track {track_id}: No match found after 3 attempts")
@@ -226,7 +207,6 @@ class FaceRecognitionClient:
     if self.perf_monitor:
       self.perf_monitor.mark_capture_end(timings)
 
-    # No local detection - send frame to server
     self.frames_since_last_send += 1
     
     result = {
@@ -237,14 +217,12 @@ class FaceRecognitionClient:
         'failed_tracks': self.failed_tracks
     }
     network_request_sent = False
-    
-    # Send every N frames to reduce bandwidth
-    if self.frames_since_last_send >= self.frame_skip:  # Send every 3rd frame
+
+    if self.frames_since_last_send >= self.frame_skip:
         if self.perf_monitor:
             self.perf_monitor.mark_network_start(timings)
         
         try:
-            # Encode frame with maximum quality
             frame_base64 = self._encode_image_base64(frame_rgb, format='png')
             
             response = requests.post(
@@ -265,13 +243,11 @@ class FaceRecognitionClient:
             if response.status_code == 200:
                 server_result = response.json()
                 result.update(server_result)
-                
-                # Update local tracking state from server
+
                 self.recognized_tracks = server_result.get('recognized_tracks', {})
                 self.recognition_attempts = server_result.get('recognition_attempts', {})
                 self.failed_tracks = server_result.get('failed_tracks', {})
-                
-                # Update active tracks for display
+
                 if 'tracks' in server_result:
                     self.active_tracks = {}
                     for track in server_result['tracks']:
@@ -292,7 +268,6 @@ class FaceRecognitionClient:
         finally:
             self.frames_since_last_send = 0
     else:
-        # Not sending this frame
         if self.perf_monitor:
             self.perf_monitor.mark_network_start(timings)
             self.perf_monitor.mark_network_end(timings)
@@ -460,7 +435,7 @@ class FaceRecognitionClient:
         color = (0, 255, 0)
         label = f"{student_info['name']} ({student_info['confidence']:.2f})"
       elif str(track_id) in self.failed_tracks:
-        color = (0, 0, 255)  # Red - ADD THIS BLOCK
+        color = (0, 0, 255)
         label = "Unrecognized"
       elif str(track_id) in self.recognition_attempts:
         attempts = self.recognition_attempts[str(track_id)]

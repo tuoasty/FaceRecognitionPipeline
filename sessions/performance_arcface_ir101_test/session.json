@@ -1,0 +1,19 @@
+{
+  "session_id": "performance_arcface_ir101_test",
+  "start_time": "2025-12-18T10:27:26.079663",
+  "end_time": "2025-12-18T10:27:47.410801",
+  "status": "completed",
+  "settings": {
+    "similarity_threshold": 0.4,
+    "recognition_interval": 30,
+    "max_recognition_attempts": 3
+  },
+  "statistics": {
+    "total_frames_processed": 120,
+    "total_faces_detected": 0,
+    "total_recognition_attempts": 24,
+    "unique_students_recognized": 1,
+    "unrecognized_tracks": 0
+  },
+  "duration_seconds": 21.331138
+}

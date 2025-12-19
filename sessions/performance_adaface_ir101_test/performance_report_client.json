@@ -1,0 +1,83 @@
+{
+  "session_info": {
+    "session_name": "performance_adaface_ir101_test",
+    "start_time": "2025-12-18T10:24:14.705265",
+    "end_time": "2025-12-18T10:24:43.159630",
+    "duration_seconds": 28.454365,
+    "component": "client"
+  },
+  "frame_statistics": {
+    "total_frames_processed": 190,
+    "total_faces_detected": 40,
+    "total_network_requests": 38,
+    "avg_faces_per_frame": 0.21052631578947367
+  },
+  "fps_metrics": {
+    "average_fps": 6.677358640756875,
+    "current_fps": 11.41630905960275,
+    "fps_history": [
+      {
+        "timestamp": 1766028268.4833815,
+        "fps": 2.177365981304077,
+        "frame_number": 30
+      },
+      {
+        "timestamp": 1766028271.047442,
+        "fps": 11.700192171630551,
+        "frame_number": 60
+      },
+      {
+        "timestamp": 1766028273.5902011,
+        "fps": 11.798207331292097,
+        "frame_number": 90
+      },
+      {
+        "timestamp": 1766028276.300315,
+        "fps": 11.069646005499584,
+        "frame_number": 120
+      },
+      {
+        "timestamp": 1766028279.0783167,
+        "fps": 10.799129129067275,
+        "frame_number": 150
+      },
+      {
+        "timestamp": 1766028281.7061362,
+        "fps": 11.41630905960275,
+        "frame_number": 180
+      }
+    ]
+  },
+  "latency_metrics": {
+    "capture": {
+      "average_ms": 0.5072969989851117,
+      "unit": "milliseconds"
+    },
+    "detection": {
+      "average_ms": 63.67090300220298,
+      "max_ms": 391.2000000127591,
+      "min_ms": 0.013199984095990658,
+      "unit": "milliseconds"
+    },
+    "network_send": {
+      "average_ms": 63.557136999152135,
+      "unit": "milliseconds"
+    },
+    "end_to_end_client": {
+      "average_ms": 64.18137900094735,
+      "unit": "milliseconds"
+    }
+  },
+  "memory_usage": {
+    "cpu_ram": {
+      "baseline_mb": 334.2421875,
+      "peak_mb": 441.140625,
+      "delta_mb": 106.8984375,
+      "unit": "megabytes"
+    }
+  },
+  "system_info": {
+    "cpu_count": 16,
+    "total_ram_gb": 15.419422149658203
+  }
+}

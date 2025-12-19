@@ -1,0 +1,20 @@
+{
+  "session_id": "performance_arcface_ir101_test",
+  "last_updated": "2025-12-18T10:27:46.778194",
+  "recognized": [
+    {
+      "student_id": "STU0010",
+      "name": "KH",
+      "first_seen": "2025-12-18T10:27:35.704613",
+      "confidence": 0.74714595079422,
+      "track_id": "track_0000",
+      "duration_seconds": 0.0,
+      "detection_quality": {
+        "det_score": 0.8612049221992493,
+        "blur_score": 1260.2975318714857
+      },
+      "saved_face_path": "sessions\\performance_arcface_ir101_test\\recognized_faces\\STU0010_KH\\track_0000_20251218_102736_648818_conf0.728_aligned.png"
+    }
+  ],
+  "unrecognized": []
+}
